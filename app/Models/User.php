@@ -66,4 +66,10 @@ class User extends Authenticatable
         'updated_at',
         'created_at',
     ];
+
+
+    public function specialties()
+    {
+        return $this->hasMany(UserSpecialty::class);
+    }
 }
