@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cookie;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Layout;
 use Orchid\Support\Facades\Toast;
 
 class SelsubjectListScreen extends Screen
@@ -23,9 +24,19 @@ class SelsubjectListScreen extends Screen
      */
     public function query(): iterable
     {
+        $userId = Auth::id();
+        $specialtyId = request()->cookie('user_specialty_id');
+
+
         return [
-            'subjects' =>  Subject::filters()->defaultSort('id', 'asc')
-                ->paginate(),
+            'subjects' =>  Subject::filters()
+                ->defaultSort('is_selected', 'DESC')
+
+                ->withCount(['users as is_selected' => function ($query) use ($userId, $specialtyId) {
+                    $query->where('user_id', $userId)
+                        ->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                }])
+                ->paginate()
 
         ];
     }
@@ -38,6 +49,14 @@ class SelsubjectListScreen extends Screen
     public function name(): ?string
     {
         return 'Вибіркові освітні компоненти університету';
+    }
+
+    public function description(): ?string
+    {
+
+        return "Всього вибрано: ". Auth::user()->subjects()
+            ->wherePivot('user_specialty_id',  request()->cookie('user_specialty_id'))
+            ->count();
     }
 
     private function specialtiesButtons()
@@ -76,9 +95,6 @@ class SelsubjectListScreen extends Screen
     {
         return [
             $this->specialtiesButtons(),
-            Button::make('Загрузити дисципліни')
-                ->icon('reload')
-                ->method('importFromGoogleSheet'),
 
         ];
     }
@@ -96,44 +112,42 @@ class SelsubjectListScreen extends Screen
         ];
     }
 
-    public function importFromGoogleSheet()
+    public function asyncGetData(string $url): array
     {
-        $selsubjectSheet = new SelsubjectSheet();
-        foreach ($selsubjectSheet->readAssoc() as $row)
-        {
-            Subject::updateOrCreate(
-                ['name' => $row['name']], // перевірка унікальності по name
-                [
-                    'department' => $row['department'] ?? null,
-                    'annotation' => $row['annotation'] ?? null,
-                    'control_type' => $row['control_type'] ?? null,
-                    'credits' => $row['credits'] ?? null,
-                    'status' => $row['status'] ?? null,
-                    'semester' => $row['semester'] ?? null,
-                    'max_min_students' => $row['max_min_students'] ?? null,
-                    'not_for_op' => $row['not_for_op'] ?? null,
-                ]
-            );
-        }
+        return [
+            'url' => $url,
+        ];
     }
 
-    public function chooseSubject($subjectId)
+
+    public function chooseSubject($subjectId, $subjectName)
     {
         $userSpecialtyId = request()->cookie('user_specialty_id');
+        if(!$userSpecialtyId){
+            Toast::warning('Виберіть свою спеціальність');
+            return;
+        }
+
         $userId = Auth::id();
 
-        if($userSpecialtyId ){
-            $record = UserSpecialtySubject::where([
-                'user_id' => $userId,
-                'user_specialty_id' => $userSpecialtyId,
-                'subject_id' => $subjectId,
-            ])->first();
+        $record = UserSpecialtySubject::where([
+            'user_id' => $userId,
+            'user_specialty_id' => $userSpecialtyId,
+            'subject_id' => $subjectId,
+        ])->first();
 
-            $record ? $record->delete() : UserSpecialtySubject::create([
+        if($record){
+            $record->delete();
+            Toast::error("Дисципліна скасована «{$subjectName}»");
+            return;
+        }else{
+            UserSpecialtySubject::create([
                 'user_id' => $userId,
                 'user_specialty_id' => $userSpecialtyId,
                 'subject_id' => $subjectId,
             ]);
+            Toast::success("Дисципліна обрана «{$subjectName}»");
+            return;
         }
 
     }

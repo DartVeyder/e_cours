@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Filters\Filterable;
+use Orchid\Filters\Types\Like;
+use Orchid\Filters\Types\Where;
 use Orchid\Screen\AsSource;
 
 class Subject extends Model
@@ -18,9 +20,28 @@ class Subject extends Model
     protected $allowedSorts = [
         'id',
         'name',
+        'is_selected',
         'department',
         'control_type',
         'max_min_students'
 
     ];
+
+    protected $allowedFilters = [
+        'id'            => Where::class,
+        'name'       => Like::class,
+        'department' => Where::class,
+    ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_specialty_subjects')
+            ->withPivot('user_specialty_id')
+            ->withTimestamps();
+    }
+
+    public function userSpecialties()
+    {
+        return $this->belongsToMany(UserSpecialty::class, 'user_specialty_subjects', 'subject_id', 'user_specialty_id');
+    }
 }

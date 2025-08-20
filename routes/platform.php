@@ -15,6 +15,8 @@ use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\Selsubject\SelsubjectListScreen;
+use App\Orchid\Screens\Subject\SubjectListScreen;
+use App\Orchid\Screens\Subject\SubjectSpecialtyListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
 use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
@@ -41,8 +43,20 @@ Route::screen('selsubjects', SelsubjectListScreen::class)
     ->name('platform.selsubjects')
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.index')
-        ->push(__('Selsubjects'), route('platform.selsubjects')));
+        ->push(__('Вибіркові освітні компоненти університету'), route('platform.selsubjects')));
 
+// Platform > Selsubject
+Route::screen('subjects', SubjectListScreen::class)
+    ->name('platform.subjects')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Список предметів'), route('platform.subjects')));
+
+Route::screen('subjects/{subject}/specialty', SubjectSpecialtyListScreen::class)
+    ->name('platform.subjects.specialty')
+    ->breadcrumbs(fn (Trail $trail, $subject) => $trail
+        ->parent('platform.index')
+        ->push(__('Предмет'), route('platform.subjects.specialty', ['subject' => $subject])));
 
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)

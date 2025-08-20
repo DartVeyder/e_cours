@@ -10,6 +10,7 @@ use App\Services\GoogleSheet\StudentsSheet;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
@@ -90,6 +91,7 @@ class AuthController extends Controller
 
             }
         }
+        Cookie::queue(Cookie::forget('user_specialty_id'));
         Auth::login($user);
         return redirect()->route('platform.main');
 
