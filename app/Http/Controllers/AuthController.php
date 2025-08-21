@@ -93,7 +93,7 @@ class AuthController extends Controller
         }
         Cookie::queue(Cookie::forget('user_specialty_id'));
         Auth::login($user);
-        return redirect()->route('platform.main');
+        return redirect()->route('platform.selsubjects');
 
 
     }

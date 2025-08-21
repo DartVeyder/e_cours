@@ -37,6 +37,7 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Вибіркові освітні компоненти університету')
                 ->route('platform.selsubjects'),
             Menu::make('Предмети')
+                ->permission('platform.systems.users')
                 ->route('platform.subjects'),
 //            Menu::make('Get Started')
 //                ->icon('bs.book')
@@ -69,18 +70,18 @@ class PlatformProvider extends OrchidServiceProvider
 //                ->icon('bs.card-text')
 //                ->route('platform.example.cards')
 //                ->divider(),
-//
-//            Menu::make(__('Users'))
-//                ->icon('bs.people')
-//                ->route('platform.systems.users')
-//                ->permission('platform.systems.users')
-//                ->title(__('Access Controls')),
-//
-//            Menu::make(__('Roles'))
-//                ->icon('bs.shield')
-//                ->route('platform.systems.roles')
-//                ->permission('platform.systems.roles')
-//                ->divider(),
+
+            Menu::make(__('Users'))
+                ->icon('bs.people')
+                ->route('platform.systems.users')
+                ->permission('platform.systems.users')
+                ->title(__('Access Controls')),
+
+            Menu::make(__('Roles'))
+                ->icon('bs.shield')
+                ->route('platform.systems.roles')
+                ->permission('platform.systems.roles')
+                ->divider(),
 //
 //            Menu::make('Documentation')
 //                ->title('Docs')

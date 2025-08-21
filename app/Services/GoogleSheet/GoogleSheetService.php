@@ -13,8 +13,8 @@ class GoogleSheetService
     {
         $this->client = new \Google\Client();
         $this->client->setAuthConfig(storage_path('app/google/ecoursauth-69f5c8e85788.json'));
-        $this->client->addScope(\Google\Service\Sheets::SPREADSHEETS);
-
+        $this->client->setScopes([\Google_Service_Sheets::SPREADSHEETS, \Google_Service_Drive::DRIVE]);
+        $this->client->setAccessType('offline');
         // ініціалізація Google Sheets API
         $this->service = new \Google\Service\Sheets($this->client);
     }

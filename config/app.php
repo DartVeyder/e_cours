@@ -52,8 +52,8 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://127.0.0.1'),
-
+    'url' => env('APP_URL', 'https://e_cours.local'),
+    'asset_url' => env('ASSET_URL'),
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Europe/Kiev',
 
     /*
     |--------------------------------------------------------------------------

@@ -35,7 +35,7 @@ use Tabuna\Breadcrumbs\Trail;
 */
 
 // Main
-Route::screen('/main', PlatformScreen::class)
+Route::screen('/main', SelsubjectListScreen::class)
     ->name('platform.main');
 
 // Platform > Selsubject
@@ -50,7 +50,8 @@ Route::screen('subjects', SubjectListScreen::class)
     ->name('platform.subjects')
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.index')
-        ->push(__('Список предметів'), route('platform.subjects')));
+        ->push(__('Список предметів'),
+            route('platform.subjects')));
 
 Route::screen('subjects/{subject}/specialty', SubjectSpecialtyListScreen::class)
     ->name('platform.subjects.specialty')

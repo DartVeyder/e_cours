@@ -4,10 +4,12 @@ namespace App\Orchid\Screens\Subject;
 
 use App\Models\Subject;
 use App\Orchid\Layouts\Subject\SubjectListLayout;
+use App\Services\GoogleSheet\ReportSubjectsStudentsSheet;
 use App\Services\GoogleSheet\SelsubjectSheet;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Toast;
 
 class SubjectListScreen extends Screen
 {
@@ -18,6 +20,7 @@ class SubjectListScreen extends Screen
      */
     public function query(): iterable
     {
+
         $subjects = Subject::filters()->withCount('users')->paginate();
 
         return [
@@ -45,8 +48,9 @@ class SubjectListScreen extends Screen
     {
         return [
             Button::make('Загрузити дисципліни')
-                ->icon('reload')
                 ->method('importFromGoogleSheet'),
+            Button::make('Вигрузити звіт по дисциплінах')
+                ->method('exportToGoogleSheet'),
         ];
     }
 
@@ -81,6 +85,27 @@ class SubjectListScreen extends Screen
                 ]
             );
         }
+
+       Toast::success("Дисципліни імпортовано");
+        return;
+    }
+
+    public function exportToGoogleSheet(){
+        $reportSubjectsStudentsSheet = new ReportSubjectsStudentsSheet();
+        $subjects = Subject::with(['userSpecialties' => function($query) {
+            $query->select('user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group');
+        }])->whereHas('userSpecialties')->get();
+
+        foreach ($subjects as $subject) {
+            $newSheetId = $reportSubjectsStudentsSheet->createSheet($subject->name);
+            $data = $subject->userSpecialties->makeHidden('pivot')->map(fn($item) => array_values($item->toArray()))->toArray();
+            array_unshift($data, ['Повне ім’я', 'Спеціальність', 'Група']);
+
+            $reportSubjectsStudentsSheet->writeBySheetId($newSheetId, $data);
+        }
+
+        Toast::success("Звіт загружено в гугл таблицю");
+        return;
     }
 
 }
