@@ -92,7 +92,10 @@ class AuthController extends Controller
             }
         }
         Cookie::queue(Cookie::forget('user_specialty_id'));
+
         Auth::login($user);
+        $specialty= Auth::user()->load('specialties')->specialties->first();
+        Cookie::queue('user_specialty_id',  $specialty->id, 1440);
         return redirect()->route('platform.selsubjects');
 
 
