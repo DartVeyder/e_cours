@@ -39,6 +39,9 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Предмети')
                 ->permission('platform.systems.users')
                 ->route('platform.subjects'),
+            Menu::make('Студенти')
+                ->permission('platform.systems.users')
+                ->route('platform.students'),
 //            Menu::make('Get Started')
 //                ->icon('bs.book')
 //                ->title('Navigation')

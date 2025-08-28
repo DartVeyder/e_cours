@@ -6,7 +6,7 @@ class SelsubjectSheet extends GoogleSheetModel
 {
     protected function getSpreadsheetId(): string
     {
-        return '1dhqnF107Mg5WxPg3lp3UpSdNstT-KwvsD9MqzLkI5-M';
+        return '18AERbOkFBsTW-sS7SNEWaxebsEtSnjsn_2QoPAQwGds';
     }
 
     protected function getHeadersMap(): array
@@ -21,13 +21,16 @@ class SelsubjectSheet extends GoogleSheetModel
             "Вивчення у семестрі" => "semester",
             "Макс/мін. кількість здобувачів" => "max_min_students",
             "Для яких ОП не може читатися" => "not_for_op",
+            "Рівень освіти" => "education_level",
+            "Активна" => "active",
+            "Шифр" => "code",
         ];
     }
 
 
     public function __construct()
     {
-        parent::__construct('Лист1');
+        parent::__construct('Всі!B1:M');
     }
 
 

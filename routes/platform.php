@@ -15,6 +15,7 @@ use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\Selsubject\SelsubjectListScreen;
+use App\Orchid\Screens\Student\StudentListScreen;
 use App\Orchid\Screens\Subject\SubjectListScreen;
 use App\Orchid\Screens\Subject\SubjectSpecialtyListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
@@ -37,6 +38,13 @@ use Tabuna\Breadcrumbs\Trail;
 // Main
 Route::screen('/main', SelsubjectListScreen::class)
     ->name('platform.main');
+
+// Platform > Students
+Route::screen('students', StudentListScreen::class)
+    ->name('platform.students')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Студенти'), route('platform.students')));
 
 // Platform > Selsubject
 Route::screen('selsubjects', SelsubjectListScreen::class)

@@ -153,8 +153,9 @@ class GoogleSheetModel
     public function readAssoc(): array
     {
         $headersMap = $this->headersMap;
-
         $rows = $this->readSheet();
+
+
         if (count($rows) < 2) return [];
 
         $headers = array_shift($rows);
@@ -164,7 +165,12 @@ class GoogleSheetModel
 
         $data = [];
 
-        foreach ($rows as $row) {
+        foreach ($rows as $row){
+            foreach ($row as &$cell) {
+                if($cell == ''){
+                    $cell = null;
+                }
+            }
             $data[] = array_combine($headers, $row + array_fill(0, count($headers), null));
         }
 

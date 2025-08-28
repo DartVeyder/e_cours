@@ -61,6 +61,12 @@ class SubjectListLayout extends Table
             TD::make('max_min_students','Макс/мін. кількість здобувачів')
                 ->sort(),
             TD::make('not_for_op','Для яких ОП не може читатися'),
+            TD::make('code','Шифр')->sort(),
+            TD::make('education_level','Рівень освіти')
+                ->filter( TD::FILTER_SELECT,Subject::distinct()
+                    ->pluck('education_level','education_level'))
+                ->sort(),
+            TD::make('active','Активний')->sort(),
             TD::make('users_count','Кількість вибрало'),
         ];
     }

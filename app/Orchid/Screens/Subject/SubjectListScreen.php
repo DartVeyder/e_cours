@@ -69,20 +69,12 @@ class SubjectListScreen extends Screen
     public function importFromGoogleSheet()
     {
         $selsubjectSheet = new SelsubjectSheet();
+
         foreach ($selsubjectSheet->readAssoc() as $row)
         {
             Subject::updateOrCreate(
-                ['name' => $row['name']], // перевірка унікальності по name
-                [
-                    'department' => $row['department'] ?? null,
-                    'annotation' => $row['annotation'] ?? null,
-                    'control_type' => $row['control_type'] ?? null,
-                    'credits' => $row['credits'] ?? null,
-                    'status' => $row['status'] ?? null,
-                    'semester' => $row['semester'] ?? null,
-                    'max_min_students' => $row['max_min_students'] ?? null,
-                    'not_for_op' => $row['not_for_op'] ?? null,
-                ]
+                ['code' => $row['code']], // перевірка унікальності по name
+                $row
             );
         }
 

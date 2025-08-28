@@ -23,7 +23,8 @@ class Subject extends Model
         'is_selected',
         'department',
         'control_type',
-        'max_min_students'
+        'max_min_students',
+        'education_level'
 
     ];
 
@@ -31,6 +32,7 @@ class Subject extends Model
         'id'            => Where::class,
         'name'       => Like::class,
         'department' => Where::class,
+        'education_level' => Where::class,
     ];
 
     public function users()
