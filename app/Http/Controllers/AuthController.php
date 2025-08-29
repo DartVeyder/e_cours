@@ -38,6 +38,7 @@ class AuthController extends Controller
 
         if($user && $user->roles->contains('slug', 'administrator')) {
             Auth::login($user);
+            $this->setCookieSpecialtyId();
             return redirect()->route('platform.main');
         }
 
@@ -81,23 +82,37 @@ class AuthController extends Controller
         }
 
         if( $user->id){
+
             foreach ( $students as $student){
                 $existingUser = UserSpecialty::where('user_id', $user->id)->where('group', $student['group'])->first();
                 if(!$existingUser){
                     $student['user_id'] = $user->id;
-                    $student['birth_date'] = Carbon::createFromFormat('d.m.Y', $student['birth_date'])->toDateString();
-                    UserSpecialty::create($student);
+                    UserSpecialty::updateOrCreate(
+                        ['card_id' => $student['card_id']],
+                        $student
+                    );
                 }
 
             }
         }
-        Cookie::queue(Cookie::forget('user_specialty_id'));
+
 
         Auth::login($user);
-        $specialty= Auth::user()->load('specialties')->specialties->first();
-        Cookie::queue('user_specialty_id',  $specialty->id, 1440);
-        return redirect()->route('platform.selsubjects');
+        $this->setCookieSpecialtyId();
+        return redirect()->route('platform.main');
 
+
+    }
+
+    private function setCookieSpecialtyId()
+    {
+        $specialty= Auth::user()->load('specialties')->specialties->first();
+
+        if($specialty){
+            Cookie::queue('user_specialty_id',  $specialty->id, 1440);
+        }else{
+            Cookie::queue(Cookie::forget('user_specialty_id'));
+        }
 
     }
 }

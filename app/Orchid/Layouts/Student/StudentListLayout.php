@@ -2,7 +2,9 @@
 
 namespace App\Orchid\Layouts\Student;
 
+use App\Models\UserSpecialty;
 use Illuminate\Database\Eloquent\Model;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -30,7 +32,16 @@ class StudentListLayout extends Table
                 ->render(function (Model $model, object $loop) {
                     return $loop->iteration;
                 }),
-            TD::make('full_name','ПІБ'),
+
+            TD::make('full_name','ПІБ')
+            ->render(function ($student){
+                return Button::make($student->full_name)
+
+                    ->method('chooseStudent', [
+                        'studentId' => $student->id,
+                        'studentName' => $student->full_name,
+                    ]);
+            }),
             TD::make('degree','Рівень освіти'),
             TD::make('department','Структурний підрозділ'),
             TD::make('specialty','Спеціальність'),
