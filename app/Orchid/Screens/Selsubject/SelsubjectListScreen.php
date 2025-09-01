@@ -6,6 +6,7 @@ use App\Models\Subject;
 use App\Models\UserSpecialty;
 use App\Models\UserSpecialtySubject;
 use App\Orchid\Layouts\SelSubject\SelSubjectListLayout;
+use App\Services\GoogleSheet\GroupsSheet;
 use App\Services\GoogleSheet\SelsubjectSheet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -80,6 +81,7 @@ class SelsubjectListScreen extends Screen
     {
         $array = [];
         $specialties = Auth::user()->load('specialties')->specialties;
+
         $userSpecialtyId = request()->cookie('user_specialty_id');
 
         if(!$userSpecialtyId){
@@ -139,18 +141,10 @@ class SelsubjectListScreen extends Screen
         ];
     }
 
-    public function asyncGetData(string $url): array
-    {
-        return [
-            'url' => $url,
-        ];
-    }
-
-
     public function chooseSubject($subjectId, $subjectName)
     {
         $userSpecialtyId = request()->cookie('user_specialty_id');
-
+        $userSpecialty = UserSpecialty::find($userSpecialtyId);
 
         if(!$userSpecialtyId){
             Toast::warning('Виберіть свою спеціальність');
@@ -173,8 +167,12 @@ class SelsubjectListScreen extends Screen
             $selectedSubjectsCount = Auth::user()->subjects()
                 ->wherePivot('user_specialty_id',  request()->cookie('user_specialty_id'))
                 ->count();
-            if($selectedSubjectsCount >= 8){
-                Toast::warning('Можна обрати не більше 8 дисциплін.');
+            $groupSheet = new GroupsSheet();
+            $groups = array_column($groupSheet->readAssoc(), 'electiveCount','group');
+            $electiveCount = $groups[$userSpecialty->group] ?? 6;
+
+            if($selectedSubjectsCount >=  $electiveCount){
+                Toast::warning('Можна обрати не більше '.$electiveCount.' дисциплін.');
                 return;
             }
 
