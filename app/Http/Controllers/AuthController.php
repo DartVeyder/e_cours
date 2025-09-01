@@ -32,8 +32,7 @@ class AuthController extends Controller
         }
 
         $user = User::with('roles')->where([
-            'provider' => 'google',
-            'provider_id' => $socialiteUser->getId()
+            'email' => $socialiteUser->getEmail()
         ])->first();
 
         if($user && $user->roles->contains('slug', 'administrator')) {
