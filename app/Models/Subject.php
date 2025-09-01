@@ -38,7 +38,7 @@ class Subject extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_specialty_subjects')
-            ->withPivot('user_specialty_id')
+            ->withPivot('user_specialty_id', 'is_student_choice')
             ->withTimestamps();
     }
 

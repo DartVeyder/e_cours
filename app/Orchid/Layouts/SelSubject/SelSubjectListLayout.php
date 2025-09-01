@@ -38,7 +38,10 @@ class SelSubjectListLayout extends Table
 
                     return Button::make('')
                         ->icon(($subject->is_selected)? 'fa.check-square': 'fa.square')
-                        ->style('color:#0d6efd;font-size:20px;')
+                        ->style( ($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
+                        ->style(is_null($subject->is_student_choice)
+                            ? 'font-size:20px;'                     // якщо немає вибору
+                            : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'))
                         ->method('chooseSubject', [
                             'subjectId' => $subject->id,
                             'subjectName' => $subject->name,
@@ -47,6 +50,7 @@ class SelSubjectListLayout extends Table
             TD::make('id','ID')
                 ->sort()
                 ->width('70px'),
+
             TD::make('name','Дисципліна')
                 ->filter(TD::FILTER_TEXT)
                 ->sort(),

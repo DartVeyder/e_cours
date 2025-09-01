@@ -34,6 +34,8 @@ class StudentListLayout extends Table
                 }),
 
             TD::make('full_name','ПІБ')
+            ->filter(TD::FILTER_TEXT)
+            ->sort()
             ->render(function ($student){
                 return Button::make($student->full_name)
 

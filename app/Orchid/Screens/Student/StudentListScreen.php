@@ -21,7 +21,7 @@ class StudentListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'students' => UserSpecialty::all()
+            'students' => UserSpecialty::filters()->paginate()
         ];
     }
 

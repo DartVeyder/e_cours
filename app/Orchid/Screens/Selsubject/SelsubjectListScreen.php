@@ -31,14 +31,23 @@ class SelsubjectListScreen extends Screen
 
         if($specialtyId){
             $userSpecialty =  UserSpecialty::find($specialtyId);
+
+
             return [
                 'subjects' =>  Subject::filters()
                     ->defaultSort('is_selected', 'DESC')
-
-                    ->withCount(['users as is_selected' => function ($query) use ($userId, $specialtyId) {
-                        $query->where('user_id', $userId)
-                            ->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                    ->withCount(['users as is_selected' => function ($query) use ($specialtyId) {
+                        $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
                     }])
+                    ->addSelect([
+                        'is_student_choice' => function ($query) use ($specialtyId) {
+                            $query->select('user_specialty_subjects.is_student_choice')
+                                ->from('user_specialty_subjects')
+                                ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
+                                ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
+                                ->limit(1);
+                        }
+                    ])
                     ->where('education_level', $userSpecialty->degree)
                     ->paginate()
 
@@ -48,10 +57,15 @@ class SelsubjectListScreen extends Screen
                 'subjects' =>  Subject::filters()
                     ->defaultSort('is_selected', 'DESC')
 
-                    ->withCount(['users as is_selected' => function ($query) use ($userId, $specialtyId) {
-                        $query->where('user_id', $userId)
-                            ->where('user_specialty_subjects.user_specialty_id', $specialtyId);
-                    }])
+                    ->withCount([
+                        'users as is_selected' => function ($query) use ($specialtyId) {
+                            $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                        },
+                        'users as is_student_choice' => function ($query) use ($specialtyId) {
+                            $query->where('user_specialty_subjects.user_specialty_id', $specialtyId)
+                                ->where('user_specialty_subjects.is_student_choice', true);
+                        }
+                    ])
                     ->paginate()
             ];
         }
@@ -71,10 +85,7 @@ class SelsubjectListScreen extends Screen
 
     public function description(): ?string
     {
-
-        return "Всього вибрано: ". Auth::user()->subjects()
-            ->wherePivot('user_specialty_id',  request()->cookie('user_specialty_id'))
-            ->count();
+        return "Всього вибрано: ". UserSpecialtySubject::where('user_specialty_id', request()->cookie('user_specialty_id')) ->count();
     }
 
     private function specialtiesButtons()
@@ -153,20 +164,18 @@ class SelsubjectListScreen extends Screen
 
         $userId = Auth::id();
 
-        $record = UserSpecialtySubject::where([
-            'user_id' => $userId,
+
+        $userSpecialtySubject = UserSpecialtySubject::where([
             'user_specialty_id' => $userSpecialtyId,
             'subject_id' => $subjectId,
         ])->first();
 
-        if($record){
-            $record->delete();
+        if($userSpecialtySubject){
+            $userSpecialtySubject->delete();
             Toast::error("Дисципліна скасована «{$subjectName}»");
             return;
         }else{
-            $selectedSubjectsCount = Auth::user()->subjects()
-                ->wherePivot('user_specialty_id',  request()->cookie('user_specialty_id'))
-                ->count();
+            $selectedSubjectsCount =  UserSpecialtySubject::where('user_specialty_id', request()->cookie('user_specialty_id'))->count();
             $groupSheet = new GroupsSheet();
             $groups = array_column($groupSheet->readAssoc(), 'electiveCount','group');
             $electiveCount = $groups[$userSpecialty->group] ?? 6;
@@ -175,12 +184,19 @@ class SelsubjectListScreen extends Screen
                 Toast::warning('Можна обрати не більше '.$electiveCount.' дисциплін.');
                 return;
             }
-
-            UserSpecialtySubject::create([
+            $userSpecialtySubjectData = [
                 'user_id' => $userId,
                 'user_specialty_id' => $userSpecialtyId,
                 'subject_id' => $subjectId,
-            ]);
+            ];
+
+            if($userSpecialty->user_id !=  $userId){
+                $userSpecialtySubjectData['is_student_choice'] = false;
+            }
+
+
+
+            UserSpecialtySubject::create($userSpecialtySubjectData);
             Toast::success("Дисципліна обрана «{$subjectName}»");
             return;
         }
