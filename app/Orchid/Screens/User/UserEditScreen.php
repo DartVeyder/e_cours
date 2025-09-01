@@ -110,16 +110,16 @@ class UserEditScreen extends Screen
                         ->method('save')
                 ),
 
-            Layout::block(UserPasswordLayout::class)
-                ->title(__('Password'))
-                ->description(__('Ensure your account is using a long, random password to stay secure.'))
-                ->commands(
-                    Button::make(__('Save'))
-                        ->type(Color::BASIC)
-                        ->icon('bs.check-circle')
-                        ->canSee($this->user->exists)
-                        ->method('save')
-                ),
+//            Layout::block(UserPasswordLayout::class)
+//                ->title(__('Password'))
+//                ->description(__('Ensure your account is using a long, random password to stay secure.'))
+//                ->commands(
+//                    Button::make(__('Save'))
+//                        ->type(Color::BASIC)
+//                        ->icon('bs.check-circle')
+//                        ->canSee($this->user->exists)
+//                        ->method('save')
+//                ),
 
             Layout::block(UserRoleLayout::class)
                 ->title(__('Roles'))
