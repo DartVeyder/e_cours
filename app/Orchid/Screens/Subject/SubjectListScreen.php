@@ -22,7 +22,6 @@ class SubjectListScreen extends Screen
     {
 
         $subjects = Subject::filters()->withCount('users')->paginate();
-
         return [
             'subjects' =>  $subjects
 

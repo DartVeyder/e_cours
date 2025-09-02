@@ -32,25 +32,53 @@ class StudentListLayout extends Table
                 ->render(function (Model $model, object $loop) {
                     return $loop->iteration;
                 }),
-
+            TD::make('subjects_count','Кількість вибрано')
+                ->sort(),
             TD::make('full_name','ПІБ')
             ->filter(TD::FILTER_TEXT)
             ->sort()
+
             ->render(function ($student){
                 return Button::make($student->full_name)
-
+                    ->style(($student->user_id) ? 'background-color: #10ff0a75;color: #005a00;border-radius: 5px;' : '')
                     ->method('chooseStudent', [
                         'studentId' => $student->id,
                         'studentName' => $student->full_name,
                     ]);
             }),
-            TD::make('degree','Рівень освіти'),
-            TD::make('department','Структурний підрозділ'),
-            TD::make('specialty','Спеціальність'),
-            TD::make('education_program','Освітня програма'),
-            TD::make('gender','Стать'),
-            TD::make('study_form','Форма навчання'),
+            TD::make('card_id','ЄДЕБО')
+                ->filter(TD::FILTER_TEXT)
+
+                ->sort(),
+            TD::make('email','Email')
+                ->filter(TD::FILTER_TEXT)
+
+                ->sort(),
+            TD::make('degree','Рівень освіти')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('degree','degree')),
+            TD::make('degree','Рівень освіти')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('degree','degree')),
+            TD::make('department','Структурний підрозділ')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('department','department')),
+            TD::make('specialty','Спеціальність')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('specialty','specialty')),
+            TD::make('education_program','Освітня програма')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('education_program','education_program')),
+            TD::make('gender','Стать')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('gender','gender')),
+            TD::make('study_form','Форма навчання')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('study_form','study_form')),
             TD::make('group','Група')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
+
         ];
     }
 }

@@ -26,11 +26,16 @@ class UserSpecialty extends Model
         'gender',
         'study_form',
         'group',
+        'email',
+        'card_id',
+        'subjects_count'
 
     ];
 
     protected $allowedFilters = [
         'full_name'            => Like::class,
+        'email'            => Like::class,
+        'card_id'            => Like::class,
         'degree'            => Where::class,
         'department'            => Where::class,
         'specialty'            => Where::class,
@@ -44,5 +49,10 @@ class UserSpecialty extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'user_specialty_subjects');
     }
 }
