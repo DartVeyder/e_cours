@@ -49,6 +49,7 @@ class SelsubjectListScreen extends Screen
                         }
                     ])
                     ->where('education_level', $userSpecialty->degree)
+                    ->where('active',  1)
                     ->paginate()
 
             ];
@@ -57,15 +58,19 @@ class SelsubjectListScreen extends Screen
                 'subjects' =>  Subject::filters()
                     ->defaultSort('is_selected', 'DESC')
 
-                    ->withCount([
-                        'users as is_selected' => function ($query) use ($specialtyId) {
-                            $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
-                        },
-                        'users as is_student_choice' => function ($query) use ($specialtyId) {
-                            $query->where('user_specialty_subjects.user_specialty_id', $specialtyId)
-                                ->where('user_specialty_subjects.is_student_choice', true);
+                    ->withCount(['users as is_selected' => function ($query) use ($specialtyId) {
+                        $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                    }])
+                    ->addSelect([
+                        'is_student_choice' => function ($query) use ($specialtyId) {
+                            $query->select('user_specialty_subjects.is_student_choice')
+                                ->from('user_specialty_subjects')
+                                ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
+                                ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
+                                ->limit(1);
                         }
                     ])
+                    ->where('active',  1)
                     ->paginate()
             ];
         }
