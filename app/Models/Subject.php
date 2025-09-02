@@ -24,7 +24,8 @@ class Subject extends Model
         'department',
         'control_type',
         'max_min_students',
-        'education_level'
+        'education_level',
+        'users_count'
 
     ];
 

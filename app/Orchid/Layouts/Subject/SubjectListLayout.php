@@ -32,6 +32,8 @@ class SubjectListLayout extends Table
             TD::make('id','ID')
                 ->sort()
                 ->width('70px'),
+            TD::make('users_count','Кількість вибрало')
+                ->sort(),
             TD::make('name','Дисципліна')
                 ->filter(TD::FILTER_TEXT)
                 ->render(function ($subject) {
@@ -67,7 +69,7 @@ class SubjectListLayout extends Table
                     ->pluck('education_level','education_level'))
                 ->sort(),
             TD::make('active','Активний')->sort(),
-            TD::make('users_count','Кількість вибрало'),
+
         ];
     }
 }
