@@ -76,6 +76,9 @@ return new class extends Migration
             $table->string('kr_without_pzso')->nullable(); // КР без отримання ПЗСО
             $table->timestamp('last_update')->nullable(); // Час останньої зміни
             $table->string('budget_transfer_category_code')->nullable(); // Код категорії переведення на бюджет
+            $table->string('budget_transfer_category_name')->nullable(); // Назва категорії переведення на бюджет
+            $table->string('card_creation_method')->nullable(); // Спосіб створення картки здобувача освіти
+            $table->string('dissertation_defense_renewal')->nullable(); // Поновлення для захисту дисертації
 
             $table->timestamps();
 

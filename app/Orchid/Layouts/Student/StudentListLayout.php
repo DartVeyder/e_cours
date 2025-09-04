@@ -46,6 +46,9 @@ class StudentListLayout extends Table
                         'studentName' => $student->full_name,
                     ]);
             }),
+            TD::make('group','Група')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
             TD::make('card_id','ЄДЕБО')
                 ->filter(TD::FILTER_TEXT)
 
@@ -54,9 +57,6 @@ class StudentListLayout extends Table
                 ->filter(TD::FILTER_TEXT)
 
                 ->sort(),
-            TD::make('degree','Рівень освіти')
-                ->sort()
-                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('degree','degree')),
             TD::make('degree','Рівень освіти')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('degree','degree')),
@@ -75,9 +75,7 @@ class StudentListLayout extends Table
             TD::make('study_form','Форма навчання')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('study_form','study_form')),
-            TD::make('group','Група')
-                ->sort()
-                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
+
 
         ];
     }

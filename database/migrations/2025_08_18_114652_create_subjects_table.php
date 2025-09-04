@@ -22,6 +22,9 @@ return new class extends Migration
             $table->string('semester')->nullable(); // Вивчення у семестрі
             $table->string('max_min_students')->nullable(); // Макс. кількість
             $table->text('not_for_op')->nullable(); // Для яких ОП не може читатися
+            $table->string('code')->nullable();
+            $table->boolean('active')->default(1);
+            $table->string('education_level')->nullable();
             $table->timestamps();
         });
     }

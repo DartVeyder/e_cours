@@ -7,6 +7,7 @@ use App\Models\UserSpecialty;
 use App\Orchid\Layouts\Student\StudentListLayout;
 use App\Services\GoogleSheet\StudentsSheet;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Schema;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
@@ -63,9 +64,12 @@ class StudentListScreen extends Screen
     public function importStudentsFromGoogleSheet()
     {
         $studentsSheet = new StudentsSheet();
-       // dd($studentsSheet->readAssoc());
         foreach ($studentsSheet->readAssoc() as $row)
         {
+            // Отримуємо список колонок таблиці user_specialties
+            $allowed = Schema::getColumnListing('user_specialties');
+
+            $row = array_intersect_key($row, array_flip($allowed));
             UserSpecialty::updateOrCreate(
                 ['card_id' => $row['card_id']],
                 $row

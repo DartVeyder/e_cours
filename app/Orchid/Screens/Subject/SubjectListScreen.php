@@ -68,7 +68,6 @@ class SubjectListScreen extends Screen
     public function importFromGoogleSheet()
     {
         $selsubjectSheet = new SelsubjectSheet();
-
         foreach ($selsubjectSheet->readAssoc() as $row)
         {
             Subject::updateOrCreate(

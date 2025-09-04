@@ -79,6 +79,9 @@ class StudentsSheet extends GoogleSheetModel
             'КР без отримання ПЗСО' => 'kr_without_pzso',
             'Час останньої зміни' => 'last_update',
             'Код категорії переведення на бюджет' => 'budget_transfer_category_code',
+            'Назва категорії переведення на бюджет' => 'budget_transfer_category_name',
+            'Спосіб створення картки здобувача освіти' => 'card_creation_method',
+            'Поновлення для захисту дисертації' => 'dissertation_defense_renewal',
         ];
     }
 
