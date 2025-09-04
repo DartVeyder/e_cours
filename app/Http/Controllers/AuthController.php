@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-//use App\Models\Student;
-//use App\Models\UserSpecialty;
-//use App\Services\GoogleSheet\StudentsSheet;
 use App\Models\UserSpecialty;
 use App\Services\GoogleSheet\StudentsSheet;
 use Carbon\Carbon;
@@ -14,7 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
-//use function MongoDB\BSON\toJSON;
+use Spatie\Activitylog\Models\Activity;
 
 class AuthController extends Controller
 {
@@ -35,24 +32,40 @@ class AuthController extends Controller
             'email' => $socialiteUser->getEmail()
         ])->first();
 
-        if($user && $user->roles->contains('slug', 'administrator')) {
+        $isAdministrator = $user && $user->roles->contains('slug', 'administrator');
+
+        if ($isAdministrator) {
             Auth::login($user);
             $this->setCookieSpecialtyId();
+
+            activity()
+                ->causedBy($user)
+                ->withProperties([
+                    'email' => $user->email,
+                    'role' => 'administrator',
+                    'status' => 'existing'
+                ])
+                ->log('Адміністратор увійшов у систему');
+
             return redirect()->route('platform.main');
         }
 
-
-
         if (!str_ends_with($socialiteUser->getEmail(), '@dspu.edu.ua')) {
-            return redirect('/login')->withErrors([  'email' => 'Увійти можуть лише користувачі з корпоративної електронної адреси dspu.edu.ua.']);
+            return redirect('/login')->withErrors([
+                'email' => 'Увійти можуть лише користувачі з корпоративної електронної адреси dspu.edu.ua.'
+            ]);
         }
 
         $studentsSheet = new StudentsSheet();
         $students = $studentsSheet->getStudentByEmail($socialiteUser->getEmail());
 
-        if(!$students){
-            return redirect('/login')->withErrors([  'email' => 'Відсутній студент в БД']);
+        if (!$students) {
+            return redirect('/login')->withErrors([
+                'email' => 'Відсутній студент в БД'
+            ]);
         }
+
+        $logType = 'existing'; // статус користувача за замовчуванням
 
         if (!$user) {
             $validator = Validator::make(
@@ -64,6 +77,7 @@ class AuthController extends Controller
             if ($validator->fails()) {
                 return redirect('/login');
             }
+
             $user = new User();
             $user->name = $socialiteUser->getName();
             $user->email = $socialiteUser->getEmail();
@@ -76,42 +90,59 @@ class AuthController extends Controller
                 "platform.systems.attachment" => false,
             ];
             $user->save();
-            $user->replaceRoles( [0 =>1]);
+            $user->replaceRoles([0 => 1]);
 
+            $logType = 'new'; // позначаємо, що користувач новий
+
+            activity()
+                ->causedBy($user)
+                ->withProperties([
+                    'email' => $user->email,
+                    'status' => 'new'
+                ])
+                ->log("Створено нового користувача через Google: {$user->name}");
         }
 
-        if( $user->id){
+        if ($user->id) {
+            foreach ($students as $student) {
+                $existingUser = UserSpecialty::where('card_id', $student['card_id'])->where('user_id', $user->id)->first();
 
-            foreach ( $students as $student){
-                $existingUser = UserSpecialty::where('card_id', $student['card_id'])->first();
-                if(!$existingUser){
+                if (!$existingUser) {
                     $student['user_id'] = $user->id;
                     UserSpecialty::updateOrCreate(
                         ['card_id' => $student['card_id']],
                         $student
                     );
-                }
 
+                }
             }
         }
 
-
         Auth::login($user);
         $this->setCookieSpecialtyId();
+
+        activity()
+            ->causedBy($user)
+            ->withProperties([
+                'email' => $user->email,
+                'status' => $logType
+            ])
+            ->log($logType === 'new'
+                ? "Новий користувач увійшов у систему: {$user->name}"
+                : "Існуючий користувач увійшов у систему: {$user->name}"
+            );
+
         return redirect()->route('platform.main');
-
-
     }
 
     private function setCookieSpecialtyId()
     {
-        $specialty= Auth::user()->load('specialties')->specialties->first();
+        $specialty = Auth::user()->load('specialties')->specialties->first();
 
-        if($specialty){
-            Cookie::queue('user_specialty_id',  $specialty->id, 1440);
-        }else{
+        if ($specialty) {
+            Cookie::queue('user_specialty_id', $specialty->id, 1440);
+        } else {
             Cookie::queue(Cookie::forget('user_specialty_id'));
         }
-
     }
 }

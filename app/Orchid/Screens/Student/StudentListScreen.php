@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\UserSpecialty;
 use App\Orchid\Layouts\Student\StudentListLayout;
 use App\Services\GoogleSheet\StudentsSheet;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Schema;
 use Orchid\Screen\Actions\Button;
@@ -77,6 +78,9 @@ class StudentListScreen extends Screen
         }
 
         Toast::success("Студентів імпортовано");
+        activity()
+            ->causedBy(Auth::user())
+            ->log("Імпорт студентів із Google Sheet завершено");
         return;
     }
 
@@ -84,6 +88,15 @@ class StudentListScreen extends Screen
     {
         Cookie::queue('user_specialty_id', $studentId, 1440);
         Toast::success("Вибрали $studentName");
+
+        activity()
+            ->causedBy(Auth::user()) // адміністратор
+            ->withProperties([
+                'student_id' => $studentId,
+                'student_name' => $studentName,
+                'chosen_by_admin' => true
+            ])
+            ->log("Адміністратор вибрав студента: {$studentName}");
         return redirect()->route('platform.selsubjects');
     }
 }

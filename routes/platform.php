@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Orchid\Screens\ActivityLogScreen;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
 use App\Orchid\Screens\Examples\ExampleChartsScreen;
@@ -39,6 +40,9 @@ use Tabuna\Breadcrumbs\Trail;
 // Main
 Route::screen('/main',  MainScreen::class)
     ->name('platform.main');
+
+
+Route::screen('activity/logs', ActivityLogScreen::class)->name('platform.activity.logs');
 
 // Platform > Students
 Route::screen('students', StudentListScreen::class)
