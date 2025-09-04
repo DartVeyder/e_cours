@@ -83,7 +83,7 @@ class AuthController extends Controller
         if( $user->id){
 
             foreach ( $students as $student){
-                $existingUser = UserSpecialty::where('user_id', $user->id)->where('group', $student['group'])->first();
+                $existingUser = UserSpecialty::where('card_id', $student['card_id'])->first();
                 if(!$existingUser){
                     $student['user_id'] = $user->id;
                     UserSpecialty::updateOrCreate(
