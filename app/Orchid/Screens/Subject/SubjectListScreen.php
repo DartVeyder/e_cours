@@ -68,17 +68,70 @@ class SubjectListScreen extends Screen
     public function importFromGoogleSheet()
     {
         $selsubjectSheet = new SelsubjectSheet();
-        foreach ($selsubjectSheet->readAssoc() as $row)
-        {
-            Subject::updateOrCreate(
-                ['code' => $row['code']], // перевірка унікальності по name
-                $row
-            );
+        $errors = [];
+        $imported = 0;
+        $created = 0;
+        $updated = 0;
+
+        foreach ($selsubjectSheet->readAssoc() as $index => $row) {
+            try {
+                // конвертація "так/ні" у 1/0 для поля active
+                if (isset($row['active'])) {
+                    $row['active'] = $row['active'] === 'так' ? 1 : 0;
+                }
+
+                $subject = Subject::updateOrCreate(
+                    ['code' => $row['code']], // перевірка унікальності по code
+                    $row
+                );
+
+                $imported++;
+                if ($subject->wasRecentlyCreated) {
+                    $created++;
+                } else {
+                    $updated++;
+                }
+
+            } catch (\Throwable $e) {
+                $errors[] = "Рядок " . ($index + 1) .
+                    " (код: " . ($row['code'] ?? '—') .
+                    "): " . $e->getMessage();
+            }
         }
 
-       Toast::success("Дисципліни імпортовано");
+        if ($errors) {
+            $message = "Імпорт завершено з помилками (" . count($errors) . "):\n" .
+                implode("\n", $errors);
+
+            activity()
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'imported' => $imported,
+                    'created'  => $created,
+                    'updated'  => $updated,
+                    'errors'   => $errors,
+                ])
+                ->log('Імпорт дисциплін завершено з помилками');
+
+            Toast::error($message);
+
+        } else {
+            activity()
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'imported' => $imported,
+                    'created'  => $created,
+                    'updated'  => $updated,
+                ])
+                ->log("Дисципліни імпортовано: нових $created, оновлено $updated");
+
+            Toast::success("Дисципліни імпортовано: нових $created, оновлено $updated");
+        }
+
         return;
     }
+
+
 
     public function exportToGoogleSheet(){
         $reportSubjectsStudentsSheet = new ReportSubjectsStudentsSheet();
