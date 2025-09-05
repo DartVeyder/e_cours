@@ -77,7 +77,16 @@ class SubjectListScreen extends Screen
             try {
                 // конвертація "так/ні" у 1/0 для поля active
                 if (isset($row['active'])) {
-                    $row['active'] = $row['active'] === 'так' ? 1 : 0;
+                    $value = mb_strtolower(trim($row['active']));
+                    if ($value === 'так') {
+                        $row['active'] = 1;
+                    } elseif ($value === 'ні') {
+                        $row['active'] = 0;
+                    } elseif (in_array($value, ['1', '0'], true)) {
+                        $row['active'] = (int) $value; // лишаємо як є
+                    } else {
+                        $row['active'] = 0; // дефолтне значення
+                    }
                 }
 
                 $subject = Subject::updateOrCreate(
