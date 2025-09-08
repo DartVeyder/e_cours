@@ -18,6 +18,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'department_id',
     ];
 
     /**
@@ -84,5 +85,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Subject::class, 'user_specialty_subjects')
             ->withPivot('user_specialty_id') // збережемо ще спеціальність
             ->withTimestamps();
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

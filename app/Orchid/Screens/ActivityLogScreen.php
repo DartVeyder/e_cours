@@ -30,7 +30,7 @@ class ActivityLogScreen extends Screen
     {
         return [
             Layout::table('logs', [
-                TD::make('id', 'ID'),
+                TD::make('id', 'ID')->width('70px'),
                 TD::make('causer_id', 'Користувач')->render(fn($log) => "(ID: $log->causer_id) " . $log->causer?->name  ?? 'Гість'),
                 TD::make('description', 'Опис'),
                 TD::make('created_at', 'Дата'),

@@ -22,8 +22,20 @@ class StudentListScreen extends Screen
      */
     public function query(): iterable
     {
+       // dd(Auth::user()->department);
+
+        $user = Auth::user()->load(['department', 'roles']);
+
+        $specialtiesQuery = UserSpecialty::filters()
+            ->withCount('subjects');
+
+        if ($user && $user->department && $user->roles->contains('slug', 'dekanat')) {
+            $specialtiesQuery->where('department', $user->department->name);
+        }
+
+
         return [
-            'students' => UserSpecialty::filters()->withCount('subjects')->paginate()
+            'students' => $specialtiesQuery->paginate()
         ];
     }
 

@@ -60,7 +60,7 @@ class StudentListLayout extends Table
             TD::make('degree','Рівень освіти')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('degree','degree')),
-            TD::make('department','Структурний підрозділ')
+            TD::make('department','Факультет')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('department','department')),
             TD::make('specialty','Спеціальність')

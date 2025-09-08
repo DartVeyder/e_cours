@@ -177,5 +177,7 @@
     "Import or create objects, or check back later for updates": "Імпортуйте або створюйте об’єкти, або перевірте оновлення пізніше",
     "Sorting was successful.": "Сортування пройшло успішно.",
     "Sorting failed. Please try again.": "Сортування не вдалося. Будь ласка, спробуйте ще раз.",
-    "Modify the privileges and permissions associated with a specific role.": "Змінити привілеї та дозволи, пов’язані з певною роллю."
+    "Modify the privileges and permissions associated with a specific role.": "Змінити привілеї та дозволи, пов’язані з певною роллю.",
+    "Department" : "Факультет",
+    "Please specify which faculty this account should belong to.": "Вкажіть, до якого факультету має належати цей обліковий запис"
 }
