@@ -37,13 +37,13 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Вибіркові освітні компоненти університету')
                 ->route('platform.selsubjects'),
             Menu::make('Предмети')
-                ->permission('platform.systems.users')
+                ->permission('platform.systems.subjects')
                 ->route('platform.subjects'),
             Menu::make('Студенти')
-                ->permission('platform.systems.users')
+                ->permission('platform.systems.students')
                 ->route('platform.students'),
             Menu::make('Журнал подій')
-                ->permission('platform.systems.roles')
+                ->permission('platform.systems.logs')
                 ->route('platform.activity.logs'),
 
 
@@ -72,7 +72,11 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             ItemPermission::group(__('System'))
                 ->addPermission('platform.systems.roles', __('Roles'))
+                ->addPermission('platform.systems.logs', __('Logs'))
+                ->addPermission('platform.systems.students', __('Students'))
+                ->addPermission('platform.systems.subjects', __('Subjects'))
                 ->addPermission('platform.systems.users', __('Users'))
+
                 //->addPermission('platform.selectedStudents', 'Вибір за студентів')
         ];
     }

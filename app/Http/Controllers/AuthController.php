@@ -32,7 +32,7 @@ class AuthController extends Controller
             'email' => $socialiteUser->getEmail()
         ])->first();
 
-        $isAdministrator = $user && $user->roles->contains('slug', 'administrator');
+        $isAdministrator = $user && ($user->roles->contains('slug', 'administrator') || $user->roles->contains('slug', 'dekanat'));
 
         if ($isAdministrator) {
             Auth::login($user);
