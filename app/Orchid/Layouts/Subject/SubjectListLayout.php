@@ -50,6 +50,9 @@ class SubjectListLayout extends Table
                 ->sort(),
             TD::make('annotation','Анотація')
                 ->render(function ($subject) {
+                    if (empty($subject->annotation)) {
+                        return '';
+                    }
                     return Link::make()
                         ->icon('fa.file-pdf')
                         ->href($subject->annotation)
