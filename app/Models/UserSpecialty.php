@@ -53,6 +53,6 @@ class UserSpecialty extends Model
 
     public function subjects()
     {
-        return $this->belongsToMany(Subject::class, 'user_specialty_subjects');
+        return $this->belongsToMany(Subject::class, 'user_specialty_subjects')->orderBy('name');;
     }
 }

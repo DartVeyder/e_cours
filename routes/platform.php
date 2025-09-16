@@ -12,12 +12,14 @@ use App\Orchid\Screens\Examples\ExampleGridScreen;
 use App\Orchid\Screens\Examples\ExampleLayoutsScreen;
 use App\Orchid\Screens\Examples\ExampleScreen;
 use App\Orchid\Screens\Examples\ExampleTextEditorsScreen;
+use App\Orchid\Screens\Group\GroupListScreen;
 use App\Orchid\Screens\MainScreen;
 use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\Selsubject\SelsubjectListScreen;
 use App\Orchid\Screens\Student\StudentListScreen;
+use App\Orchid\Screens\Student\StudentsGroupScreen;
 use App\Orchid\Screens\Subject\SubjectListScreen;
 use App\Orchid\Screens\Subject\SubjectSpecialtyListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
@@ -50,6 +52,12 @@ Route::screen('students', StudentListScreen::class)
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.index')
         ->push(__('Студенти'), route('platform.students')));
+
+Route::screen('students/groups/{group}', StudentsGroupScreen::class)
+    ->name('platform.students.group');
+
+Route::screen('groups', GroupListScreen::class)
+    ->name('platform.groups');
 
 // Platform > Selsubject
 Route::screen('selsubjects', SelsubjectListScreen::class)

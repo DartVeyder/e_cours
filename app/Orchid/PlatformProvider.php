@@ -42,6 +42,8 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Студенти')
                 ->permission('platform.systems.students')
                 ->route('platform.students'),
+            Menu::make('Групи')
+                ->route('platform.groups'),
             Menu::make('Журнал подій')
                 ->permission('platform.systems.logs')
                 ->route('platform.activity.logs'),

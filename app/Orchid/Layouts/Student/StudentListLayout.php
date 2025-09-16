@@ -5,6 +5,7 @@ namespace App\Orchid\Layouts\Student;
 use App\Models\UserSpecialty;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
@@ -48,6 +49,11 @@ class StudentListLayout extends Table
             }),
             TD::make('group','Група')
                 ->sort()
+                ->render(function ($student){
+                    return Link::make($student->group)
+                        ->route('platform.students.group', ['group' =>$student->group]);;
+
+                })
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
             TD::make('card_id','ЄДЕБО')
                 ->filter(TD::FILTER_TEXT)
