@@ -43,6 +43,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.students')
                 ->route('platform.students'),
             Menu::make('Групи')
+                ->permission('platform.systems.groups')
                 ->route('platform.groups'),
             Menu::make('Журнал подій')
                 ->permission('platform.systems.logs')
@@ -77,6 +78,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.systems.logs', __('Logs'))
                 ->addPermission('platform.systems.students', __('Students'))
                 ->addPermission('platform.systems.subjects', __('Subjects'))
+                ->addPermission('platform.systems.groups', __('Groups'))
                 ->addPermission('platform.systems.users', __('Users'))
 
                 //->addPermission('platform.selectedStudents', 'Вибір за студентів')

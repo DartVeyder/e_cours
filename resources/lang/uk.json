@@ -182,5 +182,6 @@
     "Please specify which faculty this account should belong to.": "Вкажіть, до якого факультету має належати цей обліковий запис",
     "Logs": "Журнал подій",
     "Students": "Студенти",
-    "Subjects": "Предмети"
+    "Subjects": "Предмети",
+    "Groups": "Групи"
 }
