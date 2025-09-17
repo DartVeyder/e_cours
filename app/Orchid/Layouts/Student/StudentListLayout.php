@@ -63,6 +63,10 @@ class StudentListLayout extends Table
                 ->filter(TD::FILTER_TEXT)
 
                 ->sort(),
+            TD::make('study_form','Форма навчання')
+                ->sort()
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('study_form','study_form')),
+
             TD::make('degree','Рівень освіти')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('degree','degree')),
@@ -78,9 +82,6 @@ class StudentListLayout extends Table
             TD::make('gender','Стать')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('gender','gender')),
-            TD::make('study_form','Форма навчання')
-                ->sort()
-                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('study_form','study_form')),
 
 
         ];

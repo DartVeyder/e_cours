@@ -28,7 +28,7 @@ class UserSpecialty extends Model
         'group',
         'email',
         'card_id',
-        'subjects_count'
+        'subjects_count',
 
     ];
 

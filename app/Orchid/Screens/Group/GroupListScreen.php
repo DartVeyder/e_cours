@@ -95,7 +95,7 @@ class GroupListScreen extends Screen
             }
 
             $reportStudentsGroupSheet->writeBySheetId($newSheetId, $dataSheet);
-            sleep(1);
+
         }
         Toast::success("Звіт по групам вигружено в гугл таблицю");
         return;

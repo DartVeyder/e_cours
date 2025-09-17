@@ -88,7 +88,7 @@ class GoogleSheetModel
         // 🔹 Запис нових
         $body = new \Google\Service\Sheets\ValueRange(['values' => $values]);
         $params = ['valueInputOption' => 'RAW'];
-
+        sleep(1);
         return $this->service->spreadsheets_values->update(
             $this->spreadsheetId,
             $range,
@@ -161,7 +161,6 @@ class GoogleSheetModel
         $headers = array_shift($rows);
 
         $headers = $this->changeHeaders($headersMap, $headers);
-
 
         $data = [];
 

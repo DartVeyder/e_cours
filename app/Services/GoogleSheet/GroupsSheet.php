@@ -18,7 +18,8 @@ class GroupsSheet extends GoogleSheetModel
     {
         return    [
             'Група' => 'group',
-            'Кількість вибіркових' => 'electiveCount'
+            'Кількість вибіркових' => 'electiveCount',
+            'Тип' => 'study_form',
         ];
     }
 
