@@ -18,7 +18,7 @@ class SubjectSpecialtyListScreen extends Screen
     public function query(Subject $subject): iterable
     {
         $subjectUserSpecialties = Subject::with(['userSpecialties' => function($query) {
-            $query->select('user_specialties.id', 'user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group');
+            $query->filters()->select('user_specialties.id', 'user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group','user_specialties.study_form');
         }])->find($subject->id);
          $this->subjectName = $subjectUserSpecialties->name;
          $this->countSpecialties = $subjectUserSpecialties->userSpecialties->count();

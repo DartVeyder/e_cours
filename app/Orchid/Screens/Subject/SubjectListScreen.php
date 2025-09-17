@@ -144,17 +144,55 @@ class SubjectListScreen extends Screen
 
     public function exportToGoogleSheet(){
         $reportSubjectsStudentsSheet = new ReportSubjectsStudentsSheet();
+
         $subjects = Subject::with(['userSpecialties' => function($query) {
-            $query->select('user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group');
-        }])->whereHas('userSpecialties')->get();
+            $query->select('user_specialties.id', 'user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group', 'user_specialties.study_form');
+        }])
+            ->whereHas('userSpecialties')
+            ->get()
+            ->groupBy('department');
 
-        foreach ($subjects as $subject) {
-            $newSheetId = $reportSubjectsStudentsSheet->createSheet($subject->name);
-            $data = $subject->userSpecialties->makeHidden('pivot')->map(fn($item) => array_values($item->toArray()))->toArray();
-            array_unshift($data, ['Повне ім’я', 'Спеціальність', 'Група']);
+        foreach ($subjects as $department => $items) {
+            $data = [];
 
+            foreach ($items as $subject) {
+                // Групуємо студентів предмета по формі навчання
+                $groupedStudents = $subject->userSpecialties->groupBy('study_form');
+
+                foreach ($groupedStudents as $form => $students) {
+                    // Додаємо заголовок предмета з формою навчання
+                    $data[] = [$subject->name . " ({$form})"];
+
+                    // Додаємо заголовок таблиці студентів
+                    $data[] = ['Повне ім’я', 'Спеціальність', 'Група'];
+
+                    // Додаємо студентів
+                    foreach ($students as $student) {
+                        $data[] = [
+                            $student->full_name,
+                            $student->specialty,
+                            $student->group,
+                        ];
+                    }
+
+                    $data[] = [''];
+                    $data[] = [''];
+                }
+            }
+
+            $newSheetId = $reportSubjectsStudentsSheet->createSheet($department);
             $reportSubjectsStudentsSheet->writeBySheetId($newSheetId, $data);
         }
+
+
+//        dd($subjects);
+//        foreach ($subjects as $subject) {
+//            $newSheetId = $reportSubjectsStudentsSheet->createSheet($subject->name);
+//            $data = $subject->userSpecialties->makeHidden('pivot')->map(fn($item) => array_values($item->toArray()))->toArray();
+//            array_unshift($data, ['Повне ім’я', 'Спеціальність', 'Група']);
+//
+//            $reportSubjectsStudentsSheet->writeBySheetId($newSheetId, $data);
+//        }
 
         Toast::success("Звіт загружено в гугл таблицю");
         return;
