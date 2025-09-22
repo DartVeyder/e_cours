@@ -40,6 +40,7 @@ class User extends Authenticatable
     protected $casts = [
         'permissions'          => 'array',
         'email_verified_at'    => 'datetime',
+        'debug_enabled' => 'boolean',
     ];
 
     /**
@@ -91,4 +92,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Department::class);
     }
+
+
 }

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Schema;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
 
@@ -59,6 +60,9 @@ class StudentListScreen extends Screen
         return [
             Button::make('Загрузити студентів')
                 ->method('importStudentsFromGoogleSheet'),
+            Link::make('Google Sheet')
+                ->target('_blank')
+                ->href("https://docs.google.com/spreadsheets/d/1mgLhc_jg_XSFbXjqx32xLzXTapHNMyR1kF9xASkHh_A/edit?usp=sharing")
         ];
     }
 
@@ -83,10 +87,17 @@ class StudentListScreen extends Screen
             $allowed = Schema::getColumnListing('user_specialties');
 
             $row = array_intersect_key($row, array_flip($allowed));
-            UserSpecialty::updateOrCreate(
+
+            $userSpecialty = UserSpecialty::updateOrCreate(
                 ['card_id' => $row['card_id']],
                 $row
             );
+
+            if ($userSpecialty) {
+                if($row['study_status'] == "Відраховано"){
+                    $userSpecialty->delete();
+                }
+            }
         }
 
         Toast::success("Студентів імпортовано");

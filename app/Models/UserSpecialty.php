@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Orchid\Filters\Filterable;
 use Orchid\Filters\Types\Like;
 use Orchid\Filters\Types\Where;
@@ -14,8 +15,11 @@ class UserSpecialty extends Model
     use HasFactory;
     use AsSource;
     use Filterable;
+    use SoftDeletes;
 
     protected $guarded = [];
+
+    protected $casts = ['deleted_at' => 'datetime'];
 
     protected $allowedSorts = [
         'full_name',

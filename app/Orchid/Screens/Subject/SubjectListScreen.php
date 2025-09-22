@@ -8,6 +8,7 @@ use App\Services\GoogleSheet\ReportSubjectsStudentsSheet;
 use App\Services\GoogleSheet\SelsubjectSheet;
 use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
 
@@ -50,6 +51,9 @@ class SubjectListScreen extends Screen
                 ->method('importFromGoogleSheet'),
             Button::make('Вигрузити звіт по дисциплінах')
                 ->method('exportToGoogleSheet'),
+            Link::make('Google Sheet')
+                ->target('_blank')
+                ->href("https://docs.google.com/spreadsheets/d/1mgLhc_jg_XSFbXjqx32xLzXTapHNMyR1kF9xASkHh_A/edit?usp=sharing")
         ];
     }
 

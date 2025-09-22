@@ -50,6 +50,9 @@ class GroupListScreen extends Screen
         return [
             Button::make('Вигрузити звіт по групам')
                 ->method('exportReportStudentsGroupToGoogleSheet'),
+            Link::make('Google Sheet')
+                ->target('_blank')
+                ->href("https://docs.google.com/spreadsheets/d/1husYxpQlRPIiQEvleTuzXGzukThXTEodX9ZD0kVnY_M/edit?usp=sharing")
         ];
     }
 
