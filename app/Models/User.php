@@ -19,6 +19,7 @@ class User extends Authenticatable
         'email',
         'password',
         'department_id',
+        'debug_enabled'
     ];
 
     /**
