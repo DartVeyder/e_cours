@@ -88,16 +88,16 @@ class StudentListScreen extends Screen
 
             $row = array_intersect_key($row, array_flip($allowed));
 
-            $userSpecialty = UserSpecialty::updateOrCreate(
-                ['card_id' => $row['card_id']],
-                $row
-            );
-
-            if ($userSpecialty) {
-                if($row['study_status'] == "Відраховано"){
-                    $userSpecialty->delete();
-                }
+            if ($row['study_status'] != "Відраховано") {
+                $userSpecialty = UserSpecialty::updateOrCreate(
+                    ['card_id' => $row['card_id']],
+                    $row
+                );
+            } else {
+                // Якщо статус "Відраховано" і запис існує — видаляємо
+                UserSpecialty::where('card_id', $row['card_id'])->delete();
             }
+
         }
 
         Toast::success("Студентів імпортовано");
