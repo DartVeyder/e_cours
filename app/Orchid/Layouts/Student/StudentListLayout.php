@@ -50,8 +50,10 @@ class StudentListLayout extends Table
             TD::make('group','Група')
                 ->sort()
                 ->render(function ($student){
-                    return Link::make($student->group)
-                        ->route('platform.students.group', ['group' =>$student->group]);;
+                    if(!empty($student->group)){
+                        return Link::make($student->group)
+                            ->route('platform.students.group', ['group' =>$student->group]);
+                    }
 
                 })
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
