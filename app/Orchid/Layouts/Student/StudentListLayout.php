@@ -29,10 +29,7 @@ class StudentListLayout extends Table
     protected function columns(): iterable
     {
         return [
-            TD::make('№')
-                ->render(function (Model $model, object $loop) {
-                    return $loop->iteration;
-                }),
+            TD::make('id','№') ,
             TD::make('subjects_count','Кількість вибрано')
                 ->sort(),
             TD::make('full_name','ПІБ')
