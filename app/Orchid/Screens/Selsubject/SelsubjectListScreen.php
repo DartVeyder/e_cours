@@ -25,58 +25,50 @@ class SelsubjectListScreen extends Screen
      */
     public function query(): iterable
     {
-        $userId = Auth::id();
-
+        $user = Auth::user()->load(['department', 'degree', 'roles']);
         $specialtyId = request()->cookie('user_specialty_id');
 
-        if($specialtyId){
-            $userSpecialty =  UserSpecialty::find($specialtyId);
+        $subjectsQuery = Subject::filters()
+            ->defaultSort('is_selected', 'DESC')
+            ->withCount(['users as is_selected' => function ($query) use ($specialtyId) {
+                $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+            }])
+            ->addSelect([
+                'is_student_choice' => function ($query) use ($specialtyId) {
+                    $query->select('user_specialty_subjects.is_student_choice')
+                        ->from('user_specialty_subjects')
+                        ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
+                        ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
+                        ->limit(1);
+                }
+            ])
+            ->where('active', 1);
 
-
-            return [
-                'subjects' =>  Subject::filters()
-                    ->defaultSort('is_selected', 'DESC')
-                    ->withCount(['users as is_selected' => function ($query) use ($specialtyId) {
-                        $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
-                    }])
-                    ->addSelect([
-                        'is_student_choice' => function ($query) use ($specialtyId) {
-                            $query->select('user_specialty_subjects.is_student_choice')
-                                ->from('user_specialty_subjects')
-                                ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
-                                ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
-                                ->limit(1);
-                        }
-                    ])
-                    ->where('education_level', $userSpecialty->degree)
-                    ->where('active',  1)
-                    ->paginate()
-
-            ];
-        }else{
-            return [
-                'subjects' =>  Subject::filters()
-                    ->defaultSort('is_selected', 'DESC')
-
-                    ->withCount(['users as is_selected' => function ($query) use ($specialtyId) {
-                        $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
-                    }])
-                    ->addSelect([
-                        'is_student_choice' => function ($query) use ($specialtyId) {
-                            $query->select('user_specialty_subjects.is_student_choice')
-                                ->from('user_specialty_subjects')
-                                ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
-                                ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
-                                ->limit(1);
-                        }
-                    ])
-                    ->where('active',  1)
-                    ->paginate()
-            ];
+        // Якщо в користувача є роль "деканат", додаємо фільтри
+        if ($user && $user->roles->contains('slug', 'dekanat')) {
+            if ($user->department) {
+                $subjectsQuery->where('department', $user->department->name);
+            }
         }
 
+        // Якщо в cookie є user_specialty_id — обмежуємо предмети його рівнем освіти
+        if ($specialtyId) {
+            $userSpecialty = UserSpecialty::find($specialtyId);
 
+            if ($userSpecialty && $userSpecialty->degree) {
+                $subjectsQuery->where('education_level', $userSpecialty->degree);
+            }
+        }else{
+            if ($user->degree) {
+                $subjectsQuery->where('education_level', $user->degree->name);
+            }
+        }
+
+        return [
+            'subjects' => $subjectsQuery->paginate(),
+        ];
     }
+
 
     /**
      * The name of the screen displayed in the header.
