@@ -26,6 +26,7 @@ class GroupListScreen extends Screen
 
         $groupsQuery = UserSpecialty::select('group')
             ->distinct()
+            ->whereNotNull('group')
             ->orderBy('group');
 
         // Фільтр для деканату
@@ -35,7 +36,7 @@ class GroupListScreen extends Screen
             }
         }
 
-        if ($user->degree) {
+        if ($user && $user->degree) {
             $groupsQuery->where('degree', $user->degree->name); // ✅ фільтр по degree
         }
 

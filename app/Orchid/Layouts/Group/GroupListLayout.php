@@ -34,7 +34,7 @@ class GroupListLayout extends Table
             TD::make('group','Група')
                 ->render(function ($student){
                     return Link::make($student->group)
-                        ->route('platform.students.group', ['group' =>$student->group]);;
+                        ->route('platform.students.group', ['group' =>$student->group]);
 
                 })
         ];
