@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Orchid\Screens\User;
 
 use App\Orchid\Layouts\Role\RolePermissionLayout;
+use App\Orchid\Layouts\User\UserDegreeLayout;
 use App\Orchid\Layouts\User\UserDepartmentLayout;
 use App\Orchid\Layouts\User\UserEditLayout;
 use App\Orchid\Layouts\User\UserPasswordLayout;
@@ -135,6 +136,16 @@ class UserEditScreen extends Screen
 
             Layout::block(UserDepartmentLayout::class)
                 ->title(__('Department'))
+//                ->description(__('Allow the user to perform some actions that are not provided for by his roles'))
+                ->commands(
+                    Button::make(__('Save'))
+                        ->type(Color::BASIC)
+                        ->icon('bs.check-circle')
+                        ->canSee($this->user->exists)
+                        ->method('save')
+                ),
+            Layout::block(UserDegreeLayout::class)
+                ->title(__('Degree'))
 //                ->description(__('Allow the user to perform some actions that are not provided for by his roles'))
                 ->commands(
                     Button::make(__('Save'))

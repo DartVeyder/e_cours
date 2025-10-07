@@ -188,8 +188,8 @@ class SelsubjectListScreen extends Screen
                 ])
                 ->log(
                     $userSpecialtySubject->is_student_choice
-                        ? "Студент скасував дисципліну: {$subjectName} ({$userSpecialty->specialty})"
-                        : "Дисципліна скасована адміністратором: {$subjectName} ({$userSpecialty->specialty})"
+                        ? "Студент: {$userSpecialty->full_name} скасував дисципліну: {$subjectName} ({$userSpecialty->specialty})"
+                        : "Дисципліна: {$subjectName} ({$userSpecialty->specialty}) скасована адміністратором за студента: {$userSpecialty->full_name}"
                 );
 
 
@@ -229,8 +229,8 @@ class SelsubjectListScreen extends Screen
                 ])
                 ->log(
                     $userSpecialtySubject->is_student_choice
-                        ? "Дисципліна обрана студентом: {$subjectName} ({$userSpecialty->specialty})"
-                        : "Дисципліна призначена адміністратором: {$subjectName} ({$userSpecialty->specialty})"
+                        ? "Дисципліна обрана студентом {$userSpecialty->full_name}: {$subjectName} ({$userSpecialty->specialty})"
+                        : "Дисципліна:  {$subjectName} ({$userSpecialty->specialty})  призначена адміністратором за студента: {$userSpecialty->full_name} "
                 );
 
             return;

@@ -3,6 +3,7 @@
 namespace App\Orchid\Screens\Student;
 
 use App\Models\UserSpecialty;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
 
@@ -18,11 +19,29 @@ class StudentsGroupScreen extends Screen
     {
         $this->group = $group;
 
-        $students = UserSpecialty::with('subjects')->where('group', $group)->get();
+        $user = Auth::user()->load(['department', 'degree', 'roles']);
+
+        $studentsQuery = UserSpecialty::with('subjects')
+            ->where('group', $group);
+
+        // Фільтр для деканату
+        if ($user && $user->roles->contains('slug', 'dekanat')) {
+            if ($user->department) {
+                $studentsQuery->where('department', $user->department->name);
+            }
+        }
+
+        if ($user->degree) {
+            $studentsQuery->where('degree', $user->degree->name); // ✅ фільтр по degree
+        }
+
+        $students = $studentsQuery->get();
+
         return [
-            'students'=>$students
+            'students' => $students
         ];
     }
+
 
     /**
      * The name of the screen displayed in the header.

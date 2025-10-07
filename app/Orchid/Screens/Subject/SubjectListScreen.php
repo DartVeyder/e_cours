@@ -7,6 +7,7 @@ use App\Orchid\Layouts\Subject\SubjectListLayout;
 use App\Services\GoogleSheet\ReportSubjectsStudentsSheet;
 use App\Services\GoogleSheet\SelsubjectSheet;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
@@ -21,10 +22,16 @@ class SubjectListScreen extends Screen
      */
     public function query(): iterable
     {
+        $user = Auth::user()->load(['department','degree', 'roles']);
 
-        $subjects = Subject::filters()->withCount('users')->paginate();
+        $subjectsQuery = Subject::filters()->withCount('users');
+
+        if ($user && $user->degree){
+            $subjectsQuery->where('education_level', $user->degree->name);
+        }
+
         return [
-            'subjects' =>  $subjects
+            'subjects' =>  $subjectsQuery->paginate()
 
         ];
     }
@@ -77,6 +84,10 @@ class SubjectListScreen extends Screen
         $created = 0;
         $updated = 0;
 
+        $degrees = \App\Models\Degree::all()->mapWithKeys(function ($degree) {
+            return [mb_strtolower($degree->name) => $degree->id];
+        })->toArray();
+
         foreach ($selsubjectSheet->readAssoc() as $index => $row) {
             try {
                 // конвертація "так/ні" у 1/0 для поля active
@@ -93,10 +104,21 @@ class SubjectListScreen extends Screen
                     }
                 }
 
-                $subject = Subject::updateOrCreate(
-                    ['code' => $row['code']], // перевірка унікальності по code
-                    $row
-                );
+                if (!empty($row['education_level'])) {
+                    $row['degree_id'] = $degrees[$row['education_level']] ?? null;
+                }
+
+
+                if (!empty($row['code'])) {
+                    $subject = Subject::updateOrCreate(
+                        ['code' => $row['code']], // перевірка унікальності по code
+                        $row
+                    );
+                } else {
+                    // Можна логувати або пропустити
+                    Log::warning('Пропущено запис без коду', $row);
+                    $errors[] = "Пропущено запис без коду $row[name] ";
+                }
 
                 $imported++;
                 if ($subject->wasRecentlyCreated) {

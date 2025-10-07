@@ -183,5 +183,7 @@
     "Logs": "Журнал подій",
     "Students": "Студенти",
     "Subjects": "Предмети",
-    "Groups": "Групи"
+    "Groups": "Групи",
+    "Degree": "Рівень освіти",
+    "Please specify what level of education this account should belong to.": "Вкажіть, до якого рівня освіти має належати цей обліковий запис"
 }

@@ -5,6 +5,7 @@ namespace App\Orchid\Screens\Group;
 use App\Models\UserSpecialty;
 use App\Orchid\Layouts\Group\GroupListLayout;
 use App\Services\GoogleSheet\ReportStudentsGroupSheet;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
@@ -21,12 +22,25 @@ class GroupListScreen extends Screen
      */
     public function query(): iterable
     {
+        $user = Auth::user()->load(['department', 'degree', 'roles']);
+
+        $groupsQuery = UserSpecialty::select('group')
+            ->distinct()
+            ->orderBy('group');
+
+        // Фільтр для деканату
+        if ($user && $user->roles->contains('slug', 'dekanat')) {
+            if ($user->department) {
+                $groupsQuery->where('department', $user->department->name);
+            }
+        }
+
+        if ($user->degree) {
+            $groupsQuery->where('degree', $user->degree->name); // ✅ фільтр по degree
+        }
 
         return [
-            'groups' => UserSpecialty::select('group')
-                ->distinct()
-                ->orderBy('group')
-                ->get()
+            'groups' => $groupsQuery->get()
         ];
     }
 

@@ -23,9 +23,9 @@ class StudentListScreen extends Screen
      */
     public function query(): iterable
     {
-       // dd(Auth::user()->department);
 
-        $user = Auth::user()->load(['department', 'roles']);
+
+        $user = Auth::user()->load(['department','degree', 'roles']);
 
         $specialtiesQuery = UserSpecialty::filters()
             ->withCount('subjects');
@@ -33,6 +33,12 @@ class StudentListScreen extends Screen
         if ($user && $user->department && $user->roles->contains('slug', 'dekanat')) {
             $specialtiesQuery->where('department', $user->department->name);
         }
+
+        if ($user && $user->degree){
+            $specialtiesQuery->where('degree', $user->degree->name);
+        }
+
+
 
 
         return [
@@ -81,28 +87,42 @@ class StudentListScreen extends Screen
     public function importStudentsFromGoogleSheet()
     {
         $studentsSheet = new StudentsSheet();
+
         foreach ($studentsSheet->readAssoc() as $row)
         {
             // Отримуємо список колонок таблиці user_specialties
             $allowed = Schema::getColumnListing('user_specialties');
 
+            // Визначаємо degree_id, якщо в рядку є назва рівня освіти
+            if (!empty($row['degree'])) {
+                $degree = \App\Models\Degree::where('name', $row['degree'])->first();
+                $row['degree_id'] = $degree ? $degree->id : null;
+            }
+
+            // Визначаємо department_id, якщо в рядку є назва департаменту
+            if (!empty($row['department'])) {
+                $department = \App\Models\Department::where('name', $row['department'])->first();
+                $row['department_id'] = $department ? $department->id : null;
+            }
+
+            // Залишаємо тільки дозволені колонки таблиці
             $row = array_intersect_key($row, array_flip($allowed));
 
             $userSpecialty = UserSpecialty::withTrashed()->firstWhere('card_id', $row['card_id']);
 
             if ($row['study_status'] == "Зараховано") {
                 if ($userSpecialty) {
-                    // Якщо запис існує, оновлюємо його та відновлюємо, якщо був видалений
+                    // Оновлюємо існуючий запис і відновлюємо, якщо був soft-deleted
                     $userSpecialty->update($row);
                     if ($userSpecialty->trashed()) {
                         $userSpecialty->restore();
                     }
                 } else {
-                    // Якщо запису немає — створюємо новий
+                    // Створюємо новий запис
                     UserSpecialty::create($row);
                 }
             } elseif ($row['study_status'] == "Відраховано") {
-                // Якщо запис існує — ставимо soft delete
+                // Soft delete, якщо запис існує
                 if ($userSpecialty && !$userSpecialty->trashed()) {
                     $userSpecialty->delete();
                 }
@@ -113,8 +133,8 @@ class StudentListScreen extends Screen
         activity()
             ->causedBy(Auth::user())
             ->log("Імпорт студентів із Google Sheet завершено");
-        return;
     }
+
 
     public function chooseStudent($studentId,$studentName)
     {

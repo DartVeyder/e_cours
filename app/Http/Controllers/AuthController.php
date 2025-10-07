@@ -35,8 +35,9 @@ class AuthController extends Controller
         $isAdministrator = $user && ($user->roles->contains('slug', 'administrator') || $user->roles->contains('slug', 'dekanat'));
 
         if ($isAdministrator) {
-            Auth::login($user);
+            Auth::login($user,true);
             $this->setCookieSpecialtyId();
+            $roleNames = $user->roles->pluck('name')->toArray();
 
             activity()
                 ->causedBy($user)
@@ -45,7 +46,7 @@ class AuthController extends Controller
                     'role' => 'administrator',
                     'status' => 'existing'
                 ])
-                ->log('Адміністратор увійшов у систему');
+                ->log($roleNames[0] . ' увійшов у систему');
 
             return redirect()->route('platform.main');
         }
@@ -118,7 +119,7 @@ class AuthController extends Controller
             }
         }
 
-        Auth::login($user);
+        Auth::login($user,true);
         $this->setCookieSpecialtyId();
 
         activity()
@@ -145,4 +146,6 @@ class AuthController extends Controller
             Cookie::queue(Cookie::forget('user_specialty_id'));
         }
     }
+
+
 }
