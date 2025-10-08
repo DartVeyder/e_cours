@@ -49,8 +49,9 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.logs')
                 ->route('platform.activity.logs'),
             Menu::make('Логи')
-                ->icon('bs.file-earmark-text')
+                ->permission('platform.systems.logs')
                 ->route('platform.logs'),
+
 
 
             Menu::make(__('Users'))
