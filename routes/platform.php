@@ -13,6 +13,7 @@ use App\Orchid\Screens\Examples\ExampleLayoutsScreen;
 use App\Orchid\Screens\Examples\ExampleScreen;
 use App\Orchid\Screens\Examples\ExampleTextEditorsScreen;
 use App\Orchid\Screens\Group\GroupListScreen;
+use App\Orchid\Screens\LogScreen;
 use App\Orchid\Screens\MainScreen;
 use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
@@ -43,7 +44,7 @@ use Tabuna\Breadcrumbs\Trail;
 Route::screen('/main',  MainScreen::class)
     ->name('platform.main');
 
-
+Route::screen('logs', LogScreen::class)->name('platform.logs');
 Route::screen('activity/logs', ActivityLogScreen::class)->name('platform.activity.logs');
 
 // Platform > Students

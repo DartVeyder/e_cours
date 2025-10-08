@@ -12,12 +12,12 @@ class ActivityLogScreen extends Screen
 
     public function name(): ?string
     {
-        return 'Логи користувачів';
+        return 'Журнал подій';
     }
 
     public function  description(): ?string
     {
-        return 'Історія дій через Spatie Activitylog';
+        return 'Журнал подій через Spatie Activitylog';
     }
     public function query(): array
     {
