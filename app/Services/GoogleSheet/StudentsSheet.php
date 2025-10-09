@@ -31,7 +31,7 @@ class StudentsSheet extends GoogleSheetModel
             'Дійсний до' => 'valid_until',
             'Стать' => 'gender',
             'Громадянство' => 'citizenship',
-            'ПІБ англійською' => 'name_en',
+            'ПІБ.англійською' => 'name_en',
             'РНОКПП' => 'rnokpp',
             'Валідний РНОКПП' => 'valid_rnokpp',
             'Рік ліцензійних обсягів' => 'license_year',

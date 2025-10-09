@@ -172,7 +172,6 @@ class GoogleSheetModel
             }
             $data[] = array_combine($headers, $row + array_fill(0, count($headers), null));
         }
-
         return $data;
     }
 }
