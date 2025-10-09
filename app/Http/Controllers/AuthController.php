@@ -105,14 +105,81 @@ class AuthController extends Controller
         }
 
         if ($user->id) {
-            foreach ($students as $student) {
-                $existingUser = UserSpecialty::where('card_id', $student['card_id'])->where('user_id', $user->id)->first();
+            foreach ($students as $row) {
+                $existingUser = UserSpecialty::where('card_id', $row['card_id'])->where('user_id', $user->id)->first();
 
                 if (!$existingUser) {
-                    $student['user_id'] = $user->id;
+                    $data = [
+                        'user_id' => $user->id,
+                        'email' => $row['email'],
+                        'card_id' => $row['card_id'],
+                        'status_from' => $row['status_from'],
+                        'study_status' => $row['study_status'],
+                        'fo_id' => $row['fo_id'],
+                        'full_name' => $row['full_name'],
+                        'birth_date' => $row['birth_date'],
+                        'dpo_type' => $row['dpo_type'],
+                        'document_series' => $row['document_series'],
+                        'document_number' => $row['document_number'],
+                        'issue_date' => $row['issue_date'],
+                        'valid_until' => $row['valid_until'],
+                        'gender' => $row['gender'],
+                        'citizenship' => $row['citizenship'],
+                        'name_en' => $row['name_en'],
+                        'rnokpp' => $row['rnokpp'],
+                        'valid_rnokpp' => $row['valid_rnokpp'],
+                        'license_year' => $row['license_year'],
+                        'study_start' => $row['study_start'],
+                        'study_end' => $row['study_end'],
+                        'next_level_admission_date' => $row['next_level_admission_date'],
+                        'department' => $row['department'],
+                        'dual_form' => $row['dual_form'],
+                        'degree' => $row['degree'],
+                        'admission_basis' => $row['admission_basis'],
+                        'study_form' => $row['study_form'],
+                        'funding_source' => $row['funding_source'],
+                        'other_specialty' => $row['other_specialty'],
+                        'shortened_term' => $row['shortened_term'],
+                        'specialty' => $row['specialty'],
+                        'specialization' => $row['specialization'],
+                        'op_id' => $row['op_id'],
+                        'education_program' => $row['education_program'],
+                        'profession' => $row['profession'],
+                        'course' => $row['course'],
+                        'group' => $row['group'],
+                        'foreigner_type' => $row['foreigner_type'],
+                        'category_code' => $row['category_code'],
+                        'has_education_doc' => $row['has_education_doc'],
+                        'has_student_card' => $row['has_student_card'],
+                        'has_academic_reference' => $row['has_academic_reference'],
+                        'expulsion_reason' => $row['expulsion_reason'],
+                        'academic_leave_reason' => $row['academic_leave_reason'],
+                        'status_to' => $row['status_to'],
+                        'diploma_status' => $row['diploma_status'],
+                        'student_card_status' => $row['student_card_status'],
+                        'qualification_certificate_status' => $row['qualification_certificate_status'],
+                        'budget_year' => $row['budget_year'],
+                        'regional_order' => $row['regional_order'],
+                        'enrollment_order' => $row['enrollment_order'],
+                        'previous_institution' => $row['previous_institution'],
+                        'previous_education_doc' => $row['previous_education_doc'],
+                        'previous_study_info' => $row['previous_study_info'],
+                        'has_academic_reference_doc' => $row['has_academic_reference_doc'],
+                        'has_expulsion_reference' => $row['has_expulsion_reference'],
+                        'has_student_ticket' => $row['has_student_ticket'],
+                        'has_diploma' => $row['has_diploma'],
+                        'enrollment_info' => $row['enrollment_info'],
+                        'kb_entry' => $row['kb_entry'],
+                        'kr_without_pzso' => $row['kr_without_pzso'],
+                        'last_update' => $row['last_update'],
+                        'budget_transfer_category_code' => $row['budget_transfer_category_code'],
+                        'budget_transfer_category_name' => $row['budget_transfer_category_name'],
+                        'card_creation_method' => $row['card_creation_method'],
+                        'dissertation_defense_renewal' => $row['dissertation_defense_renewal'],
+                    ];
                     UserSpecialty::updateOrCreate(
-                        ['card_id' => $student['card_id']],
-                        $student
+                        ['card_id' => $row['card_id']],
+                        $data
                     );
 
                 }
