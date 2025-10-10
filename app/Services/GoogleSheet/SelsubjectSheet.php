@@ -13,7 +13,7 @@ class SelsubjectSheet extends GoogleSheetModel
     {
         return [
             "Дисципліна" => "name",
-            "Кафедра" => "department",
+            "Кафедра" => "chair",
             "Анотація" => "annotation",
             "Вид контролю" => "control_type",
             "Кількість кредитів" => "credits",

@@ -45,11 +45,11 @@ class SelsubjectListScreen extends Screen
             ->where('active', 1);
 
         // Якщо в користувача є роль "деканат", додаємо фільтри
-        if ($user && $user->roles->contains('slug', 'dekanat')) {
-            if ($user->department) {
-                $subjectsQuery->where('department', $user->department->name);
-            }
-        }
+//        if ($user && $user->roles->contains('slug', 'dekanat')) {
+//            if ($user->department) {
+//                $subjectsQuery->where('department', $user->department->name);
+//            }
+//        }
 
         // Якщо в cookie є user_specialty_id — обмежуємо предмети його рівнем освіти
         if ($specialtyId) {
@@ -63,6 +63,7 @@ class SelsubjectListScreen extends Screen
                 $subjectsQuery->where('education_level', $user->degree->name);
             }
         }
+
 
         return [
             'subjects' => $subjectsQuery->paginate(),

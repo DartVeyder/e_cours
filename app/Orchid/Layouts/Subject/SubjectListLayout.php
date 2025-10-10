@@ -44,8 +44,8 @@ class SubjectListLayout extends Table
 
                 ->sort()
             ,
-            TD::make('department','Кафедра')
-                ->filter( TD::FILTER_SELECT,Subject::distinct()->pluck('department','department'))
+            TD::make('chair','Кафедра')
+                ->filter( TD::FILTER_SELECT,Subject::distinct()->pluck('chair','chair'))
 
                 ->sort(),
             TD::make('annotation','Анотація')

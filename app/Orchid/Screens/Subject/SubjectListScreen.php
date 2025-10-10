@@ -60,7 +60,7 @@ class SubjectListScreen extends Screen
                 ->method('exportToGoogleSheet'),
             Link::make('Google Sheet')
                 ->target('_blank')
-                ->href("https://docs.google.com/spreadsheets/d/1mgLhc_jg_XSFbXjqx32xLzXTapHNMyR1kF9xASkHh_A/edit?usp=sharing")
+                ->href("https://docs.google.com/spreadsheets/d/1DeCO1hKHqcYPcriPcaIz3LAZVCFKpmfjdkspNu1Is2w/edit?usp=sharing")
         ];
     }
 
