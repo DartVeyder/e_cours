@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\Group;
 
+use App\Models\Group;
 use App\Models\UserSpecialty;
 use App\Orchid\Layouts\Group\GroupListLayout;
 use App\Services\GoogleSheet\ReportStudentsGroupSheet;
@@ -22,26 +23,24 @@ class GroupListScreen extends Screen
      */
     public function query(): iterable
     {
-        $user = Auth::user()->load(['department', 'degree', 'roles']);
+         $groups =  Group::with(['department','degree']) ;
 
-        $groupsQuery = UserSpecialty::select('group')
-            ->distinct()
-            ->whereNotNull('group')
-            ->orderBy('group');
+         $user = Auth::user()->load(['department', 'degree', 'roles']);
 
-        // Фільтр для деканату
-        if ($user && $user->roles->contains('slug', 'dekanat')) {
+            // Фільтр для деканату
+         if ($user && $user->roles->contains('slug', 'dekanat')) {
             if ($user->department) {
-                $groupsQuery->where('department', $user->department->name);
+                $groups->where('department_id', $user->department->id);
             }
-        }
+         }
 
-        if ($user && $user->degree) {
-            $groupsQuery->where('degree', $user->degree->name); // ✅ фільтр по degree
-        }
+         if ($user && $user->degree) {
+             $groups->where('degree_id', $user->degree->id); // ✅ фільтр по degree
+         }
+
 
         return [
-            'groups' => $groupsQuery->get()
+            'groups' => $groups->get()
         ];
     }
 
@@ -89,17 +88,17 @@ class GroupListScreen extends Screen
 
         foreach ($this->groups as $item){
             $dataSheet = [];
-            $newSheetId = $reportStudentsGroupSheet->createSheet( $item->group);
+            $newSheetId = $reportStudentsGroupSheet->createSheet( $item->group_name);
             $students = UserSpecialty::with(['subjects' => function ($query) {
                 $query->select('subjects.id', 'subjects.name');
             }])
-                ->where('group', $item->group)
+                ->where('group_name', $item->group_name)
                 ->get()
                 ->map(function ($student) {
                     $student->subjects = $student->subjects->pluck('name')->toArray();
                     return $student;
                 });
-            $dataSheet[] =  [ $item->group, date("Y-m-d H:i:s")];
+            $dataSheet[] =  [ $item->group_name, date("Y-m-d H:i:s")];
             foreach ($students as $student) {
                 // об’єднуємо full_name з subjects
                 $row = array_merge(

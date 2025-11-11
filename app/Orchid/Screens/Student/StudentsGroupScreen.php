@@ -21,8 +21,8 @@ class StudentsGroupScreen extends Screen
 
         $user = Auth::user()->load(['department', 'degree', 'roles']);
 
-        $studentsQuery = UserSpecialty::with('subjects')
-            ->where('group', $group);
+        $studentsQuery = UserSpecialty::with(['subjects', 'group.semesterLimits'])
+            ->where('group_name', $group);
 
         // Фільтр для деканату
         if ($user && $user->roles->contains('slug', 'dekanat')) {
@@ -32,15 +32,44 @@ class StudentsGroupScreen extends Screen
         }
 
         if ($user->degree) {
-            $studentsQuery->where('degree', $user->degree->name); // ✅ фільтр по degree
+            $studentsQuery->where('degree', $user->degree->name);
         }
 
         $students = $studentsQuery->get();
+
+        // Додаємо інформацію по семестрах для кожного студента
+        $students->transform(function ($student) {
+            $semesterData = [];
+            $totalSelected = 0;
+
+            if ($student->group && $student->group->semesterLimits) {
+                foreach ($student->group->semesterLimits as $limit) {
+                    $semester = $limit->semester;
+
+                    // Підрахунок обраних предметів по семестрах
+                    $selectedCount = $student->subjects->filter(function ($subject) use ($semester) {
+                        return $subject->pivot->semester == $semester;
+                    })->count();
+
+                    $semesterData[$semester] = [
+                        'selected' => $selectedCount,
+                        'max' => $limit->max_subjects,
+                    ];
+
+                    $totalSelected += $selectedCount; // додаємо до загальної кількості
+                }
+            }
+
+            $student->semesterData = $semesterData;
+            $student->totalSelected = $totalSelected; // зберігаємо загальну кількість
+            return $student;
+        });
 
         return [
             'students' => $students
         ];
     }
+
 
 
     /**

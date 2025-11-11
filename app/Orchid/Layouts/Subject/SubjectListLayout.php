@@ -62,7 +62,7 @@ class SubjectListLayout extends Table
             TD::make('control_type','Вид контролю'),
             TD::make('credits','Кількість кредитів'),
             TD::make('status','Статус дисципліни'),
-            TD::make('semester','Вивчення у семестрі'),
+            TD::make('study_semester','Вивчення у семестрі'),
             TD::make('max_min_students','Макс/мін. кількість здобувачів')
                 ->sort(),
             TD::make('not_for_op','Для яких ОП не може читатися'),

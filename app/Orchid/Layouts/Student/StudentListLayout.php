@@ -45,16 +45,16 @@ class StudentListLayout extends Table
                         'studentName' => $student->full_name,
                     ]);
             }),
-            TD::make('group','Група')
+            TD::make('group_name','Група')
                 ->sort()
                 ->render(function ($student){
-                    if(!empty($student->group)){
-                        return Link::make($student->group)
-                            ->route('platform.students.group', ['group' =>$student->group]);
+                    if(!empty($student->group_name)){
+                        return Link::make($student->group_name)
+                            ->route('platform.students.group', ['group' =>$student->group_name]);
                     }
 
                 })
-                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group_name','group_name')),
             TD::make('card_id','ЄДЕБО')
                 ->filter(TD::FILTER_TEXT)
 

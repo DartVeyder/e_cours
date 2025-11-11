@@ -24,7 +24,7 @@ class SelsubjectSheet extends GoogleSheetModel
             "Практичні (семінарські) години " => "practical_hours",
             "Лабораторні години" => "laboratory_hours",
             "Самостійна робота години" => "self_study_hours",
-            "Вивчення у семестрі" => "semester",
+            "Вивчення у семестрі" => "study_semester",
             "Макс/мін. кількість здобувачів" => "max_min_students",
             "Для яких ОП не може читатися" => "not_for_op",
             "Мова викладання українська/англійська" => "language",

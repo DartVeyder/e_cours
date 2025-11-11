@@ -52,7 +52,7 @@ class StudentsSheet extends GoogleSheetModel
             'Освітня програма' => 'education_program',
             'Професія' => 'profession',
             'Курс' => 'course',
-            'Група' => 'group',
+            'Група' => 'group_name',
             'Тип іноземця' => 'foreigner_type',
             'Код категорії' => 'category_code',
             'Чи є в картці документ про освіту' => 'has_education_doc',

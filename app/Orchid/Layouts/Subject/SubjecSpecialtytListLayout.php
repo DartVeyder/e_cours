@@ -38,9 +38,9 @@ class SubjecSpecialtytListLayout extends Table
             TD::make('specialty','Спеціальність')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('specialty','specialty')),
-            TD::make('group','Група')
+            TD::make('group_name','Група')
                 ->sort()
-                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group','group')),
+                ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('group_name','group_name')),
             TD::make('study_form','Форма навчання')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('study_form','study_form')),

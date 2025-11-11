@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\Student;
 
+use App\Models\Group;
 use App\Models\Student;
 use App\Models\UserSpecialty;
 use App\Orchid\Layouts\Student\StudentListLayout;
@@ -105,12 +106,26 @@ class StudentListScreen extends Screen
                 $row['department_id'] = $department ? $department->id : null;
             }
 
+            if (!empty($row['group_name'])) {
+                $group =  Group::firstOrCreate(
+                    ['name' => $row['group_name']], // Унікальна назва групи
+                    [
+                        'department_id' => $row['department_id'] ?? null,
+                        'degree_id' => $row['degree_id'] ?? null, // 🔹 нове поле
+                    ]
+                );
+                $row['group_id'] = $group->id;
+            }
+
             // Залишаємо тільки дозволені колонки таблиці
             $row = array_intersect_key($row, array_flip($allowed));
 
             $userSpecialty = UserSpecialty::withTrashed()->firstWhere('card_id', $row['card_id']);
 
             $data = [
+                'department_id' => $row['department_id'],
+                'degree_id' => $row['degree_id'],
+                'group_id' => $row['group_id'],
                 'email' => $row['email'],
                 'card_id' => $row['card_id'],
                 'status_from' => $row['status_from'],
@@ -146,7 +161,7 @@ class StudentListScreen extends Screen
                 'education_program' => $row['education_program'],
                 'profession' => $row['profession'],
                 'course' => $row['course'],
-                'group' => $row['group'],
+                'group_name' => $row['group_name'],
                 'foreigner_type' => $row['foreigner_type'],
                 'category_code' => $row['category_code'],
                 'has_education_doc' => $row['has_education_doc'],

@@ -29,7 +29,7 @@ class UserSpecialty extends Model
         'education_program',
         'gender',
         'study_form',
-        'group',
+        'group_name',
         'email',
         'card_id',
         'subjects_count',
@@ -46,7 +46,7 @@ class UserSpecialty extends Model
         'education_program'  => Where::class,
         'gender'             => Where::class,
         'study_form'         => Where::class,
-        'group'              => Where::class,
+        'group_name'              => Where::class,
     ];
 
 
@@ -57,6 +57,12 @@ class UserSpecialty extends Model
 
     public function subjects()
     {
-        return $this->belongsToMany(Subject::class, 'user_specialty_subjects')->orderBy('name');;
+        return $this->belongsToMany(Subject::class, 'user_specialty_subjects')
+            ->withPivot(['semester', 'is_student_choice'])
+            ->orderBy('name');
+    }
+
+    public function group(){
+        return $this->belongsTo(Group::class);
     }
 }

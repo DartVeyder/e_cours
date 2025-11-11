@@ -2,7 +2,11 @@
 
 namespace App\Orchid\Layouts\Group;
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
@@ -31,12 +35,20 @@ class GroupListLayout extends Table
                 ->render(function (Model $model, object $loop) {
                     return $loop->iteration;
                 }),
-            TD::make('group','Група')
-                ->render(function ($student){
-                    return Link::make($student->group)
-                        ->route('platform.students.group', ['group' =>$student->group]);
+            TD::make('name','Група')
+                ->render(function ($group){
+                    return Link::make($group->name)
+                        ->route('platform.students.group', ['group' =>$group->name]);
 
-                })
+                }),
+            TD::make(__('Actions'))
+                ->align(TD::ALIGN_CENTER)
+                ->width('100px')
+                ->render(fn ($group) =>
+                    Link::make()
+                        ->route('platform.groups.edit', $group->id)
+                        ->icon('bs.pencil')),
+
         ];
     }
 }

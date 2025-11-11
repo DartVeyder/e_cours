@@ -12,6 +12,7 @@ use App\Orchid\Screens\Examples\ExampleGridScreen;
 use App\Orchid\Screens\Examples\ExampleLayoutsScreen;
 use App\Orchid\Screens\Examples\ExampleScreen;
 use App\Orchid\Screens\Examples\ExampleTextEditorsScreen;
+use App\Orchid\Screens\Group\GroupEditScreen;
 use App\Orchid\Screens\Group\GroupListScreen;
 use App\Orchid\Screens\LogScreen;
 use App\Orchid\Screens\MainScreen;
@@ -59,6 +60,9 @@ Route::screen('students/groups/{group}', StudentsGroupScreen::class)
 
 Route::screen('groups', GroupListScreen::class)
     ->name('platform.groups');
+
+Route::screen('groups/{group?}/edit', GroupEditScreen::class)
+    ->name('platform.groups.edit');
 
 // Platform > Selsubject
 Route::screen('selsubjects', SelsubjectListScreen::class)

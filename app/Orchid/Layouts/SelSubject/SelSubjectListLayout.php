@@ -3,7 +3,9 @@
 namespace App\Orchid\Layouts\SelSubject;
 
 use App\Models\Subject;
+use App\Models\UserSpecialty;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Actions\ModalToggle;
 use Orchid\Screen\Fields\CheckBox;
@@ -31,25 +33,56 @@ class SelSubjectListLayout extends Table
      */
     protected function columns(): iterable
     {
-        return [
-            TD::make('is_selected','Вибрано')
-                ->sort()
-                ->render(function ($subject) {
 
-                    return Button::make('')
-                        ->icon(($subject->is_selected)? 'fa.check-square': 'fa.square')
+        return [
+//            TD::make('is_selected','Вибрано')
+//                ->sort()
+//                ->render(function ($subject) {
+//
+//                    return Button::make('')
+//                        ->icon(($subject->is_selected)? 'fa.check-square': 'fa.square')
+//                        ->style( ($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
+//                        ->style(is_null($subject->is_student_choice)
+//                            ? 'font-size:20px;'                     // якщо немає вибору
+//                            : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'))
+//                        ->method('chooseSubject', [
+//                            'subjectId' => $subject->id,
+//                            'subjectName' => $subject->name,
+//                        ]);
+//                })->canSee(!empty( request()->cookie('user_specialty_id'))) ,
+            TD::make('semester','Вибрано семестр')
+                ->sort()
+                ->render(function ($subject  ) {
+                    $list = [];
+                    $userSpecialty = UserSpecialty::with('group')->find(request()->cookie('user_specialty_id'));
+                    for($i=0;$i<=$userSpecialty->group->semester_count;$i++){
+
+                       if($subject->semester != $i) {
+                           $list[$i] =  Button::make(($i == 0)? "-": $i)
+                               ->method('chooseSubject',
+                                   [
+                                       'subjectId' => $subject->id,
+                                       'subjectName' => $subject->name,
+                                       'semester' => $i,
+                                   ]);
+                       }
+
+
+                   }
+                   return DropDown::make($subject->semester ?? '-')
+                        ->list( $list)
                         ->style( ($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
                         ->style(is_null($subject->is_student_choice)
                             ? 'font-size:20px;'                     // якщо немає вибору
-                            : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'))
-                        ->method('chooseSubject', [
-                            'subjectId' => $subject->id,
-                            'subjectName' => $subject->name,
-                        ]);
-                })->canSee(!empty( request()->cookie('user_specialty_id'))) ,
-            TD::make('id','ID')
-                ->sort()
-                ->width('70px'),
+                            : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'));
+                })
+
+              //->width('150px')
+              //->style('background:blue')
+                ->canSee(!empty( request()->cookie('user_specialty_id'))) ,
+//            TD::make('id','ID')
+//                ->sort()
+//                ->width('70px'),
 
             TD::make('name','Дисципліна')
                 ->filter(TD::FILTER_TEXT)
@@ -73,11 +106,13 @@ class SelSubjectListLayout extends Table
             TD::make('control_type','Вид контролю'),
             TD::make('credits','Кількість кредитів'),
             TD::make('status','Статус дисципліни'),
-            TD::make('semester','Вивчення у семестрі'),
+            TD::make('study_semester','Вивчення у семестрі'),
             TD::make('max_min_students','Макс/мін. кількість здобувачів')
                 ->sort(),
             TD::make('not_for_op','Для яких ОП не може читатися'),
             TD::make('code','Шифр'),
         ];
     }
+
+
 }
