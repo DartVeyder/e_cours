@@ -45,7 +45,7 @@ class GroupEditScreen extends Screen
         for ($i = 1; $i <= $semesterCount; $i++) {
             $semesterInputs[] = Input::make("semester_limits.$i.max_subjects")
                 ->type('number')
-                ->min(1)
+                ->min(0)
                 ->step(1)
                 ->title("Кількість предметів для семестру $i")
                 ->placeholder('Вкажіть кількість предметів')
