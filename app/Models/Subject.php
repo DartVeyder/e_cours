@@ -33,6 +33,7 @@ class Subject extends Model
         'id'            => Where::class,
         'name'       => Like::class,
         'department' => Where::class,
+        'chair' => Where::class,
         'education_level' => Where::class,
     ];
 
