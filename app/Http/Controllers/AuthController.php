@@ -146,7 +146,7 @@ class AuthController extends Controller
                         'education_program' => $row['education_program'],
                         'profession' => $row['profession'],
                         'course' => $row['course'],
-                        'group' => $row['group'],
+                        'group_name' => $row['group_name'],
                         'foreigner_type' => $row['foreigner_type'],
                         'category_code' => $row['category_code'],
                         'has_education_doc' => $row['has_education_doc'],
