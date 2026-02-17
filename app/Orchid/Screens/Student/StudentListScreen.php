@@ -192,7 +192,7 @@ class StudentListScreen extends Screen
                 'card_creation_method' => $row['card_creation_method'],
                 'dissertation_defense_renewal' => $row['dissertation_defense_renewal'],
             ];
-            if ($row['study_status'] == "Зараховано") {
+            if ($row['study_status'] == "Зараховано" || $row['study_status'] == "Змінено фінансування") {
                 if ($userSpecialty) {
                     // Оновлюємо існуючий запис і відновлюємо, якщо був soft-deleted
                     $userSpecialty->update($data);
