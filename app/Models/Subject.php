@@ -46,6 +46,7 @@ class Subject extends Model
 
     public function userSpecialties()
     {
-        return $this->belongsToMany(UserSpecialty::class, 'user_specialty_subjects', 'subject_id', 'user_specialty_id');
+        return $this->belongsToMany(UserSpecialty::class, 'user_specialty_subjects', 'subject_id', 'user_specialty_id')
+            ->withPivot('semester');
     }
 }

@@ -44,6 +44,10 @@ class SubjecSpecialtytListLayout extends Table
             TD::make('study_form','Форма навчання')
                 ->sort()
                 ->filter( TD::FILTER_SELECT,UserSpecialty::distinct()->pluck('study_form','study_form')),
+            TD::make('semester','Семестр')
+                ->render(function (UserSpecialty $model) {
+                    return $model->pivot->semester ?? '—';
+                }),
         ];
     }
 }
