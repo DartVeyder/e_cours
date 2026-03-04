@@ -4,10 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Orchid\Filters\Filterable;
+use Orchid\Filters\Types\Like;
+use Orchid\Filters\Types\Where;
+use Orchid\Screen\AsSource;
 
 class Group extends Model
 {
     use HasFactory;
+    use AsSource;
+    use Filterable;
 
     protected $fillable = [
         'name',
@@ -16,6 +22,17 @@ class Group extends Model
         'semester_count',
     ];
 
+    protected $allowedSorts = [
+        'name',
+        'department_id',
+        'degree_id',
+    ];
+
+    protected $allowedFilters = [
+        'name'          => Like::class,
+        'department_id' => Where::class,
+        'degree_id'     => Where::class,
+    ];
 
     public function specialties()
     {

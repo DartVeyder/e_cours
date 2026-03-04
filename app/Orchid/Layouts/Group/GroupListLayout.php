@@ -2,53 +2,68 @@
 
 namespace App\Orchid\Layouts\Group;
 
+use App\Models\Degree;
+use App\Models\Department;
 use App\Models\Group;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Orchid\Screen\Actions\Button;
-use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Layouts\Table;
 use Orchid\Screen\TD;
 
 class GroupListLayout extends Table
 {
-    /**
-     * Data source.
-     *
-     * The name of the key to fetch it from the query.
-     * The results of which will be elements of the table.
-     *
-     * @var string
-     */
     protected $target = 'groups';
 
-    /**
-     * Get the table cells to be displayed.
-     *
-     * @return TD[]
-     */
     protected function columns(): iterable
     {
         return [
             TD::make('№')
-                ->render(function (Model $model, object $loop) {
+                ->render(function (Group $model, object $loop) {
                     return $loop->iteration;
                 }),
-            TD::make('name','Група')
-                ->render(function ($group){
-                    return Link::make($group->name)
-                        ->route('platform.students.group', ['group' =>$group->name]);
 
+            TD::make('name', 'Група')
+                ->sort()
+                ->filter(TD::FILTER_TEXT)
+                ->render(function (Group $group) {
+                    return Link::make($group->name)
+                        ->route('platform.students.group', ['group' => $group->name]);
                 }),
+
+            TD::make('department_id', 'Факультет')
+                ->sort()
+                ->filter(
+                    Select::make('department_id')
+                        ->options(
+                            Department::orderBy('name')->pluck('name', 'id')->toArray()
+                        )
+                        ->empty('Всі', '')
+                        ->title('Факультет')
+                )
+                ->render(fn(Group $group) => optional($group->department)->name ?? '—'),
+
+            TD::make('degree_id', 'Рівень освіти')
+                ->sort()
+                ->filter(
+                    Select::make('degree_id')
+                        ->options(
+                            Degree::orderBy('name')->pluck('name', 'id')->toArray()
+                        )
+                        ->empty('Всі', '')
+                        ->title('Рівень освіти')
+                )
+                ->render(fn(Group $group) => optional($group->degree)->name ?? '—'),
+
+            TD::make('semester_count', 'Семестрів')
+                ->align(TD::ALIGN_CENTER),
+
             TD::make(__('Actions'))
                 ->align(TD::ALIGN_CENTER)
-                ->width('100px')
-                ->render(fn ($group) =>
+                ->width('80px')
+                ->render(fn(Group $group) =>
                     Link::make()
                         ->route('platform.groups.edit', $group->id)
                         ->icon('bs.pencil')),
-
         ];
     }
 }
