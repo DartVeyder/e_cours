@@ -6,9 +6,27 @@ use Orchid\Filters\Types\Like;
 use Orchid\Filters\Types\Where;
 use Orchid\Filters\Types\WhereDateStartEnd;
 use Orchid\Platform\Models\User as Authenticatable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    use HasFactory, Notifiable, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+                'created' => "Користувача «{$this->name}» створено",
+                'updated' => "Дані користувача «{$this->name}» оновлено",
+                'deleted' => "Користувача «{$this->name}» видалено",
+                default   => "Користувач «{$this->name}»: {$eventName}",
+            });
+    }
     /**
      * The attributes that are mass assignable.
      *

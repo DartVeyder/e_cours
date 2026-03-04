@@ -8,12 +8,28 @@ use Orchid\Filters\Filterable;
 use Orchid\Filters\Types\Like;
 use Orchid\Filters\Types\Where;
 use Orchid\Screen\AsSource;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Group extends Model
 {
     use HasFactory;
     use AsSource;
     use Filterable;
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+                'created' => "Групу «{$this->name}» створено",
+                'updated' => "Групу «{$this->name}» оновлено",
+                'deleted' => "Групу «{$this->name}» видалено",
+                default   => "Група «{$this->name}»: {$eventName}",
+            });
+    }
 
     protected $fillable = [
         'name',

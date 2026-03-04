@@ -3,6 +3,7 @@ namespace App\Orchid\Screens\Group;
 
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Screen;
@@ -85,6 +86,16 @@ class GroupEditScreen extends Screen
         }
 
         Toast::info("Групу успішно збережено.");
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($group)
+            ->withProperties([
+                'group_name'     => $group->name,
+                'semester_count' => $group->semester_count,
+                'limits'         => $semesterLimits,
+            ])
+            ->log("Збережено групу «{$group->name}»");
 
         return redirect()->route('platform.groups.edit', $group->id);
     }
