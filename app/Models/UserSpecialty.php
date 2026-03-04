@@ -9,8 +9,6 @@ use Orchid\Filters\Filterable;
 use Orchid\Filters\Types\Like;
 use Orchid\Filters\Types\Where;
 use Orchid\Screen\AsSource;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class UserSpecialty extends Model
 {
@@ -18,21 +16,6 @@ class UserSpecialty extends Model
     use AsSource;
     use Filterable;
     use SoftDeletes;
-    use LogsActivity;
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logFillable()
-            ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
-                'created' => "Студента «{$this->full_name}» додано (картка: {$this->card_id})",
-                'updated' => "Запис студента «{$this->full_name}» оновлено",
-                'deleted' => "Студента «{$this->full_name}» видалено/відраховано",
-                'restored' => "Студента «{$this->full_name}» відновлено",
-                default   => "Студент «{$this->full_name}»: {$eventName}",
-            });
-    }
 
     protected $guarded = [];
 
