@@ -91,7 +91,7 @@ class StudentsGroupScreen extends Screen
     public function commandBar(): iterable
     {
         return [
-            Link::make('📥 Excel-звіт')
+            Link::make('Вигрузити звіт')
                 ->href(route('export.group.excel', ['group' => $this->group]))
                 ->icon('cloud-download'),
         ];
