@@ -4,6 +4,7 @@ namespace App\Orchid\Screens\Student;
 
 use App\Models\UserSpecialty;
 use Illuminate\Support\Facades\Auth;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
 
@@ -89,7 +90,11 @@ class StudentsGroupScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        return [
+            Link::make('📥 Excel-звіт')
+                ->href(route('export.group.excel', ['group' => $this->group]))
+                ->icon('cloud-download'),
+        ];
     }
 
     /**
