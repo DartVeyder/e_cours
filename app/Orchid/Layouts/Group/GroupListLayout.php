@@ -31,27 +31,13 @@ class GroupListLayout extends Table
                 }),
 
             TD::make('department_id', 'Факультет')
-                ->sort()
-                ->filter(
-                    Select::make('department_id')
-                        ->options(
-                            Department::orderBy('name')->pluck('name', 'id')->toArray()
-                        )
-                        ->empty('Всі', '')
-                        ->title('Факультет')
-                )
+                ->sort() 
+                ->filter( TD::FILTER_SELECT,Department::orderBy('name')->pluck('name', 'id')->toArray())
                 ->render(fn(Group $group) => optional($group->department)->name ?? '—'),
 
             TD::make('degree_id', 'Рівень освіти')
-                ->sort()
-                ->filter(
-                    Select::make('degree_id')
-                        ->options(
-                            Degree::orderBy('name')->pluck('name', 'id')->toArray()
-                        )
-                        ->empty('Всі', '')
-                        ->title('Рівень освіти')
-                )
+                ->sort() 
+                ->filter( TD::FILTER_SELECT,Degree::orderBy('name')->pluck('name', 'id')->toArray())
                 ->render(fn(Group $group) => optional($group->degree)->name ?? '—'),
 
             TD::make('semester_count', 'Семестрів')
