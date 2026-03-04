@@ -19,7 +19,7 @@ class GroupListLayout extends Table
         return [
             TD::make('№')
                 ->render(function (Group $model, object $loop) {
-                    return $loop->iteration;
+                    return (request('page', 1) - 1) * 20 + $loop->iteration;
                 }),
 
             TD::make('name', 'Група')
