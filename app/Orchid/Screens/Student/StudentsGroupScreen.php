@@ -93,7 +93,8 @@ class StudentsGroupScreen extends Screen
         return [
             Link::make('Вигрузити звіт')
                 ->href(route('export.group.excel', ['group' => $this->group]))
-                ->icon('cloud-download'),
+                ->icon('cloud-download')
+                ->download(),
         ];
     }
 
