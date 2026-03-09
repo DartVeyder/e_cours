@@ -79,7 +79,7 @@ class SubjectListLayout extends Table
                 }
                 return Link::make()
                     ->icon('fa.file-pdf')
-                    ->href($subject->annotation  )
+                    ->href($subject->work_program  )
                     ->style('font-size:20px;')
                     ->target('_blank') ;
             }
