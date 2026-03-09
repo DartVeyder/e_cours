@@ -72,6 +72,18 @@ class SubjectListLayout extends Table
                     ->pluck('education_level','education_level'))
                 ->sort(),
             TD::make('active','Активний')->sort(),
+            TD::make('work_program','Робоча програма')
+                ->render(function ($subject) {
+                if (empty($subject->work_program)) {
+                    return '';
+                }
+                return Link::make()
+                    ->icon('fa.file-pdf')
+                    ->href($subject->annotation  )
+                    ->style('font-size:20px;')
+                    ->target('_blank') ;
+            }
+            ),
 
         ];
     }

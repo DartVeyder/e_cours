@@ -103,6 +103,8 @@ class SelSubjectListLayout extends Table
                     ->target('_blank') ;
             }
             ),
+            
+            
             TD::make('control_type','Вид контролю'),
             TD::make('credits','Кількість кредитів'),
             TD::make('status','Статус дисципліни'),
@@ -111,6 +113,18 @@ class SelSubjectListLayout extends Table
                 ->sort(),
             TD::make('not_for_op','Для яких ОП не може читатися'),
             TD::make('code','Шифр'),
+            TD::make('work_program','Робоча програма')
+                ->render(function ($subject) {
+                if (empty($subject->work_program)) {
+                    return '';
+                }
+                return Link::make()
+                    ->icon('fa.file-pdf')
+                    ->href($subject->annotation  )
+                    ->style('font-size:20px;')
+                    ->target('_blank') ;
+            }
+            ),
         ];
     }
 

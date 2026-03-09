@@ -31,13 +31,14 @@ class SelsubjectSheet extends GoogleSheetModel
             "Шифр" => "code",
             "Активна" => "active",
             "Рівень освіти" => "education_level",
+            "Робоча програма" => "work_program",
         ];
     }
 
 
     public function __construct()
     {
-        parent::__construct('Всі!B1:T');
+        parent::__construct('Всі!B1:U');
     }
 
 

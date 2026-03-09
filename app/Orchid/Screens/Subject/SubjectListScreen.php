@@ -87,7 +87,7 @@ class SubjectListScreen extends Screen
         $degrees = \App\Models\Degree::all()->mapWithKeys(function ($degree) {
             return [mb_strtolower($degree->name) => $degree->id];
         })->toArray();
-
+            
         foreach ($selsubjectSheet->readAssoc() as $index => $row) {
             try {
                 // конвертація "так/ні" у 1/0 для поля active
