@@ -32,7 +32,14 @@ class StudentListLayout extends Table
             TD::make('id','№')
             ->width('70px'),
             TD::make('subjects_count','Кількість вибрано')
-                ->sort(),
+                ->sort()
+                ->render(function ($student) {
+                    $totalRequired = $student->group ? $student->group->semesterLimits->sum('max_subjects') : 0;
+                    if ($totalRequired > 0) {
+                        return "{$student->subjects_count} / {$totalRequired}";
+                    }
+                    return $student->subjects_count;
+                }),
             TD::make('full_name','ПІБ')
             ->filter(TD::FILTER_TEXT)
             ->sort()

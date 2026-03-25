@@ -29,6 +29,8 @@ class StudentListScreen extends Screen
         $user = Auth::user()->load(['department','degree', 'roles']);
 
         $specialtiesQuery = UserSpecialty::filters()
+            ->filtersApply([\App\Orchid\Filters\SubjectSelectionFilter::class])
+            ->with(['group.semesterLimits'])
             ->withCount('subjects');
 
         if ($user && $user->department && $user->roles->contains('slug', 'dekanat')) {
@@ -81,6 +83,7 @@ class StudentListScreen extends Screen
     public function layout(): iterable
     {
         return [
+            \App\Orchid\Layouts\Student\StudentFiltersLayout::class,
             StudentListLayout::class,
         ];
     }
