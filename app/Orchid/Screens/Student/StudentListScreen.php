@@ -66,7 +66,30 @@ class StudentListScreen extends Screen
      */
     public function commandBar(): iterable
     {
+        $exportParams = [];
+        if (request()->has('filter')) {
+            foreach (request()->get('filter') as $key => $value) {
+                if (is_array($value)) {
+                    foreach ($value as $k => $v) {
+                        $exportParams["filter[$key][$k]"] = $v;
+                    }
+                } else {
+                    $exportParams["filter[$key]"] = $value;
+                }
+            }
+        }
+        if (request()->has('sort')) {
+            $exportParams['sort'] = request()->get('sort');
+        }
+        if (request()->has('subject_selection')) {
+            $exportParams['subject_selection'] = request()->get('subject_selection');
+        }
+
         return [
+            Button::make('Експорт в Excel')
+                ->icon('cloud-download')
+                ->method('export', $exportParams)
+                ->rawClick(),
             Button::make('Загрузити студентів')
                 ->method('importStudentsFromGoogleSheet'),
             Link::make('Google Sheet')
@@ -235,5 +258,31 @@ class StudentListScreen extends Screen
             ])
             ->log("Адміністратор вибрав студента: {$studentName}");
         return redirect()->route('platform.selsubjects');
+    }
+
+    public function export()
+    {
+        $user = Auth::user()->load(['department','degree', 'roles']);
+
+        $specialtiesQuery = UserSpecialty::filters()
+            ->filtersApply([\App\Orchid\Filters\SubjectSelectionFilter::class])
+            ->with(['group.semesterLimits'])
+            ->withCount('subjects');
+
+        if ($user && $user->department && $user->roles->contains('slug', 'dekanat')) {
+            $specialtiesQuery->where('department', $user->department->name);
+        }
+
+        if ($user && $user->degree){
+            $specialtiesQuery->where('degree', $user->degree->name);
+        }
+
+        $students = $specialtiesQuery->get();
+
+        activity()
+            ->causedBy(Auth::user())
+            ->log("Експорт студентів у Excel");
+
+        return (new \App\Services\StudentsExcelExport())->export($students);
     }
 }
