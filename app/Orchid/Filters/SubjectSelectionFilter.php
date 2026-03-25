@@ -56,19 +56,20 @@ class SubjectSelectionFilter extends Filter
         $value = $this->request->get('subject_selection');
 
         $maxSubjectsSubquery = '(SELECT COALESCE(SUM(max_subjects), 0) FROM group_semester_limits WHERE group_semester_limits.group_id = user_specialties.group_id)';
+        $subjectsCountSubquery = '(SELECT count(*) FROM user_specialty_subjects WHERE user_specialty_subjects.user_specialty_id = user_specialties.id)';
 
         if ($value === 'all') {
-            return $builder->having('subjects_count', '>', 0)
-                           ->havingRaw("subjects_count >= $maxSubjectsSubquery");
+            return $builder->whereRaw("$subjectsCountSubquery > 0")
+                           ->whereRaw("$subjectsCountSubquery >= $maxSubjectsSubquery");
         }
 
         if ($value === 'partial') {
-            return $builder->having('subjects_count', '>', 0)
-                           ->havingRaw("subjects_count < $maxSubjectsSubquery");
+            return $builder->whereRaw("$subjectsCountSubquery > 0")
+                           ->whereRaw("$subjectsCountSubquery < $maxSubjectsSubquery");
         }
 
         if ($value === 'none') {
-            return $builder->having('subjects_count', '=', 0);
+            return $builder->whereRaw("$subjectsCountSubquery = 0");
         }
 
         return $builder;
