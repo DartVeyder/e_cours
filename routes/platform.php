@@ -45,6 +45,12 @@ use Tabuna\Breadcrumbs\Trail;
 Route::screen('/main',  MainScreen::class)
     ->name('platform.main');
 
+Route::screen('settings', \App\Orchid\Screens\Setting\SettingsScreen::class)
+    ->name('platform.settings')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Налаштування системи'), route('platform.settings')));
+
 Route::screen('logs', LogScreen::class)->name('platform.logs');
 Route::screen('activity/logs', ActivityLogScreen::class)->name('platform.activity.logs');
 

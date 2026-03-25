@@ -172,7 +172,7 @@ class SubjectListScreen extends Screen
         $reportSubjectsStudentsSheet = new ReportSubjectsStudentsSheet();
 
         $subjects = Subject::with(['userSpecialties' => function($query) {
-            $query->select('user_specialties.id', 'user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group', 'user_specialties.study_form');
+            $query->select('user_specialties.id', 'user_specialties.full_name', 'user_specialties.specialty', 'user_specialties.group_name', 'user_specialties.study_form');
         }])
             ->whereHas('userSpecialties')
             ->get()
@@ -197,7 +197,7 @@ class SubjectListScreen extends Screen
                         $data[] = [
                             $student->full_name,
                             $student->specialty,
-                            $student->group,
+                            $student->group_name,
                         ];
                     }
 

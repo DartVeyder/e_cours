@@ -52,6 +52,11 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.logs')
                 ->route('platform.logs'),
 
+            Menu::make('Налаштування')
+                ->icon('bs.gear')
+                ->permission('platform.systems.roles')
+                ->route('platform.settings'),
+
 
 
             Menu::make(__('Users'))

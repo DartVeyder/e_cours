@@ -120,7 +120,15 @@ class SelsubjectListScreen extends Screen
             $output[] = "Семестр {$semester}: {$selected}/{$max} ";
         }
 
-        return count($output) ? implode(', ', $output) : "Ще не вибрано жодного предмету";
+        $description = count($output) ? implode(', ', $output) : "Ще не вибрано жодного предмету";
+
+        $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!$isSelectionEnabled && (!$user || (!$user->roles->contains('slug', 'dekanat') && !$user->hasAccess('platform.systems.roles')))) {
+            $description .= " | 🔴 Увага! Редагування списку дисциплін наразі закрите адміністрацією.";
+        }
+
+        return $description;
     }
 
 
@@ -271,6 +279,13 @@ class SelsubjectListScreen extends Screen
 
     public  function chooseSubject($subjectId, $subjectName, $semester)
     {
+        $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!$isSelectionEnabled && (!$user || (!$user->roles->contains('slug', 'dekanat') && !$user->hasAccess('platform.systems.roles')))) {
+            Toast::error('Вибір дисциплін наразі закритий адміністрацією.');
+            return;
+        }
+
         $userSpecialtyId = request()->cookie('user_specialty_id');
         $userSpecialty = UserSpecialty::find($userSpecialtyId);
 

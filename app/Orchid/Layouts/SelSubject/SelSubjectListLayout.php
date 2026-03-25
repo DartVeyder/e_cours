@@ -55,8 +55,17 @@ class SelSubjectListLayout extends Table
                 ->render(function ($subject  ) {
                     $list = [];
                     $userSpecialty = UserSpecialty::with('group')->find(request()->cookie('user_specialty_id'));
-                    for($i=0;$i<=$userSpecialty->group->semester_count;$i++){
+                    
+                    $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
+                    $user = \Illuminate\Support\Facades\Auth::user();
+                    $canSelect = $isSelectionEnabled || ($user && ($user->roles->contains('slug', 'dekanat') || $user->hasAccess('platform.systems.roles')));
 
+                    if (!$canSelect) {
+                        $style = is_null($subject->is_student_choice) ? 'font-size:20px;' : ($subject->is_student_choice == 1 ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;');
+                        return "<span style='{$style} display: inline-block; padding: 6px 12px;'>" . ($subject->semester ?? '-') . "</span>";
+                    }
+
+                    for($i=0;$i<=$userSpecialty->group->semester_count;$i++){
                        if($subject->semester != $i) {
                            $list[$i] =  Button::make(($i == 0)? "-": $i)
                                ->method('chooseSubject',
@@ -66,10 +75,8 @@ class SelSubjectListLayout extends Table
                                        'semester' => $i,
                                    ]);
                        }
-
-
-                   }
-                   return DropDown::make($subject->semester ?? '-')
+                    }
+                    return DropDown::make($subject->semester ?? '-')
                         ->list( $list)
                         ->style( ($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
                         ->style(is_null($subject->is_student_choice)
