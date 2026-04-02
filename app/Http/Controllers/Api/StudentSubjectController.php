@@ -18,9 +18,8 @@ class StudentSubjectController extends Controller
             ->leftJoin('subjects', 'subjects.id', '=', 'user_specialty_subjects.subject_id')
             ->select([
                 'user_specialties.full_name as student_name',
-                'user_specialties.group_name as group',
-                'user_specialties.education_program as education_program',
                 'subjects.name as component',
+                'user_specialty_subjects.semester as semester',
                 'subjects.credits as component_volume',
             ]);
 
@@ -38,20 +37,18 @@ class StudentSubjectController extends Controller
                 
                 // Add Headers
                 fputcsv($file, [
-                    'Студент',
-                    'Група',
-                    'Освітня програма',
-                    'Компонента',
-                    'Обсяг компоненти'
+                    'ПІБ студента',
+                    'Дисципліна',
+                    'Семестр',
+                    'Кількість кредитів'
                 ], ';');
 
                 // Process records in chunks to prevent memory exhaustion
                 foreach ($query->cursor() as $row) {
                     fputcsv($file, [
                         $row->student_name,
-                        $row->group,
-                        $row->education_program,
                         $row->component,
+                        $row->semester,
                         $row->component_volume,
                     ], ';');
                 }
