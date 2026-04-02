@@ -17,6 +17,7 @@ class StudentSubjectController extends Controller
             ->leftJoin('user_specialty_subjects', 'user_specialties.id', '=', 'user_specialty_subjects.user_specialty_id')
             ->leftJoin('subjects', 'subjects.id', '=', 'user_specialty_subjects.subject_id')
             ->select([
+                'user_specialties.card_id as edebo',
                 'user_specialties.full_name as student_name',
                 'subjects.name as component',
                 'user_specialty_subjects.semester as semester',
@@ -37,6 +38,7 @@ class StudentSubjectController extends Controller
                 
                 // Add Headers
                 fputcsv($file, [
+                    'ЄДЕБО',
                     'ПІБ студента',
                     'Дисципліна',
                     'Семестр',
@@ -46,6 +48,7 @@ class StudentSubjectController extends Controller
                 // Process records in chunks to prevent memory exhaustion
                 foreach ($query->cursor() as $row) {
                     fputcsv($file, [
+                        $row->edebo,
                         $row->student_name,
                         $row->component,
                         $row->semester,
