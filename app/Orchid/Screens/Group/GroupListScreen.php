@@ -46,6 +46,10 @@ class GroupListScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            Button::make('Детальний звіт по студентах (всі групи)')
+                ->icon('cloud-download')
+                ->method('exportSubjects')
+                ->rawClick(),
             // Button::make('Вигрузити звіт по групам')
             //     ->method('exportReportStudentsGroupToGoogleSheet'),
             Link::make('Google Sheet')
@@ -89,5 +93,36 @@ class GroupListScreen extends Screen
         }
         Toast::success("Звіт по групам вигружено в гугл таблицю");
         return;
+    }
+
+    public function exportSubjects()
+    {
+        $user = Auth::user()->load(['department', 'degree', 'roles']);
+
+        // Fetch students directly with same filters as groups
+        $specialtiesQuery = UserSpecialty::with([
+                'subjects' => function ($q) {
+                    $q->select('subjects.id', 'subjects.name')->orderBy('subjects.name');
+                }
+            ])
+            ->orderBy('group_name')
+            ->orderBy('full_name');
+
+        if ($user && $user->department && $user->roles->contains('slug', 'dekanat')) {
+            $specialtiesQuery->where('department', $user->department->name);
+        }
+
+        if ($user && $user->degree) {
+            $specialtiesQuery->where('degree', $user->degree->name);
+        }
+
+        $students = $specialtiesQuery->get();
+
+        activity()
+            ->causedBy(Auth::user())
+            ->log("Експорт детального звіту студентів у Excel (зі сторінки Груп)");
+
+        $filename = "Детальний_звіт_Студенти_" . date('Y-m-d') . '.xlsx';
+        return (new \App\Services\GroupExcelExport())->exportCollection($students, 'Студенти', $filename, true);
     }
 }

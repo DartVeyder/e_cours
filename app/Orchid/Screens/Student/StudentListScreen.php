@@ -26,7 +26,7 @@ class StudentListScreen extends Screen
     {
 
 
-        $user = Auth::user()->load(['department','degree', 'roles']);
+        $user = Auth::user()->load(['department', 'degree', 'roles']);
 
         $specialtiesQuery = UserSpecialty::filters()
             ->filtersApply([\App\Orchid\Filters\SubjectSelectionFilter::class])
@@ -37,7 +37,7 @@ class StudentListScreen extends Screen
             $specialtiesQuery->where('department', $user->department->name);
         }
 
-        if ($user && $user->degree){
+        if ($user && $user->degree) {
             $specialtiesQuery->where('degree', $user->degree->name);
         }
 
@@ -115,8 +115,7 @@ class StudentListScreen extends Screen
     {
         $studentsSheet = new StudentsSheet();
 
-        foreach ($studentsSheet->readAssoc() as $row)
-        {
+        foreach ($studentsSheet->readAssoc() as $row) {
             // Отримуємо список колонок таблиці user_specialties
             $allowed = Schema::getColumnListing('user_specialties');
 
@@ -133,7 +132,7 @@ class StudentListScreen extends Screen
             }
 
             if (!empty($row['group_name'])) {
-                $group =  Group::firstOrCreate(
+                $group = Group::firstOrCreate(
                     ['name' => $row['group_name']], // Унікальна назва групи
                     [
                         'department_id' => $row['department_id'] ?? null,
@@ -244,7 +243,7 @@ class StudentListScreen extends Screen
     }
 
 
-    public function chooseStudent($studentId,$studentName)
+    public function chooseStudent($studentId, $studentName)
     {
         Cookie::queue('user_specialty_id', $studentId, 1440);
         Toast::success("Вибрали $studentName");
@@ -262,7 +261,7 @@ class StudentListScreen extends Screen
 
     public function export()
     {
-        $user = Auth::user()->load(['department','degree', 'roles']);
+        $user = Auth::user()->load(['department', 'degree', 'roles']);
 
         $specialtiesQuery = UserSpecialty::filters()
             ->filtersApply([\App\Orchid\Filters\SubjectSelectionFilter::class])
@@ -273,7 +272,7 @@ class StudentListScreen extends Screen
             $specialtiesQuery->where('department', $user->department->name);
         }
 
-        if ($user && $user->degree){
+        if ($user && $user->degree) {
             $specialtiesQuery->where('degree', $user->degree->name);
         }
 

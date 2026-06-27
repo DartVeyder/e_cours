@@ -29,6 +29,12 @@ class GroupExcelExport
             ->orderBy('full_name')
             ->get();
 
+        $filename = "Звіт_{$groupName}_" . date('Y-m-d') . '.xlsx';
+        return $this->exportCollection($students, mb_substr($groupName, 0, 31), $filename, false);
+    }
+
+    public function exportCollection($students, string $sheetTitle, string $filename, bool $showGroup = false): StreamedResponse
+    {
         // 2. Collect sorted semester list
         $semesters = collect();
         foreach ($students as $student) {
@@ -66,19 +72,24 @@ class GroupExcelExport
             }
         }
 
-        $totalCols = count($colMap) + 2; // +2 for № and ПІБ
+        $colOffset = $showGroup ? 3 : 2;
+        $totalCols = count($colMap) + $colOffset; 
 
         // 5. Create spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle(mb_substr($groupName, 0, 31));
+        $sheet->setTitle($sheetTitle);
 
         // --- Header row ---
         $sheet->setCellValue([1, 1], '№');
         $sheet->setCellValue([2, 1], 'ПІБ');
+        
+        if ($showGroup) {
+            $sheet->setCellValue([3, 1], 'Група');
+        }
 
         foreach ($colMap as $idx => $col) {
-            $sheet->setCellValue([$idx + 3, 1], "Семестр {$col['semester']}");
+            $sheet->setCellValue([$idx + $colOffset + 1, 1], "Семестр {$col['semester']}");
         }
 
         // --- Data rows ---
@@ -86,6 +97,10 @@ class GroupExcelExport
         foreach ($students as $i => $student) {
             $sheet->setCellValue([1, $rowIdx], $i + 1);
             $sheet->setCellValue([2, $rowIdx], $student->full_name);
+            
+            if ($showGroup) {
+                $sheet->setCellValue([3, $rowIdx], $student->group_name);
+            }
 
             // Group disciplines by semester, sorted alphabetically
             $bySemester = [];
@@ -98,7 +113,7 @@ class GroupExcelExport
                 $slot = $col['slot'];
                 $name = $bySemester[$sem][$slot] ?? '';
                 if ($name !== '') {
-                    $cellRef = Coordinate::stringFromColumnIndex($idx + 3) . $rowIdx;
+                    $cellRef = Coordinate::stringFromColumnIndex($idx + $colOffset + 1) . $rowIdx;
                     $sheet->setCellValue($cellRef, $name);
                 }
             }
@@ -109,11 +124,9 @@ class GroupExcelExport
         $lastRow = $rowIdx - 1;
 
         // 6. Styling
-        $this->applyStyles($sheet, $totalCols, $lastRow, $semesters->toArray(), $maxSlots);
+        $this->applyStyles($sheet, $totalCols, $lastRow, $semesters->toArray(), $maxSlots, $showGroup);
 
         // 7. Stream response
-        $filename = "Звіт_{$groupName}_" . date('Y-m-d') . '.xlsx';
-
         $response = new StreamedResponse(function () use ($spreadsheet) {
             $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
@@ -126,18 +139,28 @@ class GroupExcelExport
         return $response;
     }
 
-    private function applyStyles($sheet, int $totalCols, int $lastRow, array $semesters, array $maxSlots): void
+    private function applyStyles($sheet, int $totalCols, int $lastRow, array $semesters, array $maxSlots, bool $showGroup): void
     {
         $lastColLetter = Coordinate::stringFromColumnIndex($totalCols);
 
-        // Freeze first 2 columns and header row
-        $sheet->freezePane('C2');
+        // Freeze columns and header row
+        if ($showGroup) {
+            $sheet->freezePane('D2');
+            $colStart = 4;
+        } else {
+            $sheet->freezePane('C2');
+            $colStart = 3;
+        }
 
         // Column widths
         $sheet->getColumnDimension('A')->setWidth(5);
         $sheet->getColumnDimension('B')->setWidth(32);
+        
+        if ($showGroup) {
+            $sheet->getColumnDimension('C')->setWidth(15);
+        }
 
-        for ($c = 3; $c <= $totalCols; $c++) {
+        for ($c = $colStart; $c <= $totalCols; $c++) {
             $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($c))->setWidth(28);
         }
 
@@ -153,12 +176,12 @@ class GroupExcelExport
         // Merge same-semester header cells (optional visual grouping)
         // Each run of identical semester labels gets a different shade
         $semesterColors = ['FFD9E1F2', 'FFE2EFDA', 'FFFFF2CC', 'FFFCE4D6', 'FFDDEBF7'];
-        $colStart = 3;
+        $currentColStart = $colStart;
         foreach ($semesters as $semIdx => $sem) {
             $slots     = $maxSlots[$sem];
-            $colEnd    = $colStart + $slots - 1;
+            $colEnd    = $currentColStart + $slots - 1;
             $color     = $semesterColors[$semIdx % count($semesterColors)];
-            $rangeFrom = Coordinate::stringFromColumnIndex($colStart) . '1';
+            $rangeFrom = Coordinate::stringFromColumnIndex($currentColStart) . '1';
             $rangeTo   = Coordinate::stringFromColumnIndex($colEnd) . '1';
 
             // Color this semester block
@@ -166,7 +189,7 @@ class GroupExcelExport
                 ->setFillType(Fill::FILL_SOLID)
                 ->getStartColor()->setARGB($color);
 
-            $colStart = $colEnd + 1;
+            $currentColStart = $colEnd + 1;
         }
 
         // Data rows: ПІБ left-aligned, all top-aligned
