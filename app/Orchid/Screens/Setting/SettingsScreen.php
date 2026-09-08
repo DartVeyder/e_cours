@@ -38,7 +38,7 @@ class SettingsScreen extends Screen
 
     public function description(): ?string
     {
-        return 'Загальні параметри доступу та конфігурація платформи';
+        return 'Загальні параметри доступу та конфігурація платформи (v' . config('app.version', '1.4.0') . ')';
     }
 
     /**

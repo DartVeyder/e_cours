@@ -95,4 +95,16 @@ class MainScreenTest extends TestCase
         $response->assertOk();
         $response->assertSee('Вибір дисциплін ЗАКРИТО');
     }
+
+    public function test_main_screen_displays_system_version(): void
+    {
+        $user = User::factory()->create([
+            'permissions' => ['platform.index' => true],
+        ]);
+
+        $response = $this->actingAs($user)->get(route('platform.main'));
+
+        $response->assertOk();
+        $response->assertSee('v' . config('app.version', '1.4.0'));
+    }
 }

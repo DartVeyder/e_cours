@@ -33,6 +33,10 @@
                                             🧪 Тестовий режим Google Таблиць
                                         </span>
                                     @endif
+
+                                    <span class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-25 px-3 py-2 rounded-pill fw-semibold">
+                                        v{{ config('app.version', '1.4.0') }}
+                                    </span>
                                 </div>
 
                                 <h1 class="h2 fw-bold text-white mb-2">
@@ -377,6 +381,10 @@
                                             Вибір дисциплін ЗАКРИТО
                                         </span>
                                     @endif
+
+                                    <span class="badge bg-white bg-opacity-15 text-white border border-white border-opacity-25 px-3 py-2 rounded-pill fw-semibold">
+                                        v{{ config('app.version', '1.4.0') }}
+                                    </span>
                                 </div>
 
                                 <h1 class="h2 fw-bold text-white mb-2">
