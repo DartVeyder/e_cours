@@ -52,10 +52,15 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.logs')
                 ->route('platform.logs'),
 
-            Menu::make('Налаштування')
+            Menu::make('Налаштування системи')
                 ->icon('bs.gear')
                 ->permission('platform.systems.roles')
                 ->route('platform.settings'),
+
+            Menu::make('Google Таблиці')
+                ->icon('bs.file-earmark-spreadsheet')
+                ->permission('platform.systems.roles')
+                ->route('platform.settings.google-sheets'),
 
 
 

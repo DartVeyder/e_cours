@@ -3,8 +3,10 @@
 namespace App\Orchid\Screens\Setting;
 
 use App\Models\Setting;
+use App\Services\GoogleSheet\GoogleSheetService;
 use Illuminate\Http\Request;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\Switcher;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
@@ -34,6 +36,11 @@ class SettingsScreen extends Screen
         return 'Налаштування системи';
     }
 
+    public function description(): ?string
+    {
+        return 'Загальні параметри доступу та конфігурація платформи';
+    }
+
     /**
      * The screen's action buttons.
      *
@@ -42,8 +49,12 @@ class SettingsScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            Link::make('Налаштування Google Таблиць')
+                ->icon('bs.file-earmark-spreadsheet')
+                ->route('platform.settings.google-sheets'),
+
             Button::make('Зберегти')
-                ->icon('bs.save')
+                ->icon('bs.check-circle')
                 ->method('save'),
         ];
     }
@@ -56,12 +67,14 @@ class SettingsScreen extends Screen
     public function layout(): iterable
     {
         return [
-            Layout::rows([
+            Layout::block(Layout::rows([
                 Switcher::make('subject_selection_enabled')
                     ->sendTrueOrFalse()
                     ->title('Дозволити студентам вибирати дисципліни')
-                    ->help('При вимкненні студенти не зможуть вибирати або скасовувати вибір дисциплін.'),
-            ])
+                    ->help('При вимкненні студенти не зможуть вибирати або скасовувати вибір дисциплін (режим тільки для читання).'),
+            ]))
+            ->title('Кампанія вибору дисциплін')
+            ->description('Керування доступністю вибору навчальних компонентів для здобувачів освіти.'),
         ];
     }
 
@@ -74,6 +87,6 @@ class SettingsScreen extends Screen
             ['value' => $enabled]
         );
 
-        Toast::info('Налаштування збережено.');
+        Toast::info('Налаштування системи успішно збережено.');
     }
 }

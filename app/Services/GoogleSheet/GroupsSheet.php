@@ -6,12 +6,13 @@ class GroupsSheet extends GoogleSheetModel
 {
     protected function getSpreadsheetId(): string
     {
-        return '1mgLhc_jg_XSFbXjqx32xLzXTapHNMyR1kF9xASkHh_A';
+        return GoogleSheetService::getSheetId('groups');
     }
 
     public function __construct()
     {
-        parent::__construct('Група');
+        $tab = GoogleSheetService::getSheetTab('groups', 'Група');
+        parent::__construct($tab);
     }
 
     protected function getHeadersMap(): array

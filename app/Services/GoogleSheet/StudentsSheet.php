@@ -6,12 +6,13 @@ class StudentsSheet extends GoogleSheetModel
 {
     protected function getSpreadsheetId(): string
     {
-        return '1mgLhc_jg_XSFbXjqx32xLzXTapHNMyR1kF9xASkHh_A';
+        return GoogleSheetService::getSheetId('students');
     }
 
     public function __construct()
     {
-        parent::__construct('Студенти');
+        $tab = GoogleSheetService::getSheetTab('students', 'Студенти');
+        parent::__construct($tab);
     }
 
     protected function getHeadersMap(): array

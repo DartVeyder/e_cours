@@ -6,7 +6,7 @@ class ReportSubjectsStudentsSheet extends GoogleSheetModel
 {
     protected function getSpreadsheetId(): string
     {
-        return '1husYxpQlRPIiQEvleTuzXGzukThXTEodX9ZD0kVnY_M';
+        return GoogleSheetService::getSheetId('report_subjects');
     }
 
     public function __construct()

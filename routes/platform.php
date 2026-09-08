@@ -51,6 +51,13 @@ Route::screen('settings', \App\Orchid\Screens\Setting\SettingsScreen::class)
         ->parent('platform.index')
         ->push(__('Налаштування системи'), route('platform.settings')));
 
+Route::screen('settings/google-sheets', \App\Orchid\Screens\Setting\GoogleSheetsSettingsScreen::class)
+    ->name('platform.settings.google-sheets')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Налаштування системи'), route('platform.settings'))
+        ->push(__('Google Таблиці'), route('platform.settings.google-sheets')));
+
 Route::screen('logs', LogScreen::class)->name('platform.logs');
 Route::screen('activity/logs', ActivityLogScreen::class)->name('platform.activity.logs');
 

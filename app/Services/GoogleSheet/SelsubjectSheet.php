@@ -6,7 +6,7 @@ class SelsubjectSheet extends GoogleSheetModel
 {
     protected function getSpreadsheetId(): string
     {
-        return '1DeCO1hKHqcYPcriPcaIz3LAZVCFKpmfjdkspNu1Is2w';
+        return GoogleSheetService::getSheetId('subjects');
     }
 
     protected function getHeadersMap(): array
@@ -38,7 +38,11 @@ class SelsubjectSheet extends GoogleSheetModel
 
     public function __construct()
     {
-        parent::__construct('Всі!B1:U');
+        $tab = GoogleSheetService::getSheetTab('subjects', 'Всі!B1:U');
+        if (!str_contains($tab, '!')) {
+            $tab = "{$tab}!B1:U";
+        }
+        parent::__construct($tab);
     }
 
 

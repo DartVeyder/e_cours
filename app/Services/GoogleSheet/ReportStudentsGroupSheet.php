@@ -6,7 +6,7 @@ class ReportStudentsGroupSheet extends GoogleSheetModel
 {
     protected function getSpreadsheetId(): string
     {
-        return '1HRqXSekhpmGR-r41L04ePvTGZWaFFIeWpGzq1IwH9EI';
+        return GoogleSheetService::getSheetId('report_groups');
     }
 
     public function __construct()
