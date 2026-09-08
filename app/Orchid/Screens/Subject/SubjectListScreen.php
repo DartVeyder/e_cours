@@ -55,12 +55,15 @@ class SubjectListScreen extends Screen
     {
         return [
             Button::make('Загрузити дисципліни')
+                ->icon('bs.cloud-arrow-down')
                 ->method('importFromGoogleSheet'),
             Button::make('Вигрузити звіт по дисциплінах')
+                ->icon('bs.cloud-arrow-up')
                 ->method('exportToGoogleSheet'),
             Link::make('Google Sheet')
+                ->icon('bs.box-arrow-up-right')
                 ->target('_blank')
-                ->href("https://docs.google.com/spreadsheets/d/1DeCO1hKHqcYPcriPcaIz3LAZVCFKpmfjdkspNu1Is2w/edit?usp=sharing")
+                ->href(\App\Services\GoogleSheet\GoogleSheetService::getSheetUrl('subjects'))
         ];
     }
 
