@@ -113,11 +113,13 @@ class SelsubjectListScreen extends Screen
         $output = [];
 
         // Проходимо всі семестри групи
-        foreach ($userSpecialty->group->semesterLimits as $limit) {
-            $semester = $limit->semester;
-            $selected = $semesterCounts->get($semester, 0); // скільки обрано
-            $max = $limit->max_subjects; // ліміт
-            $output[] = "Семестр {$semester}: {$selected}/{$max} ";
+        if ($userSpecialty->group && $userSpecialty->group->semesterLimits) {
+            foreach ($userSpecialty->group->semesterLimits as $limit) {
+                $semester = $limit->semester;
+                $selected = $semesterCounts->get($semester, 0); // скільки обрано
+                $max = $limit->max_subjects; // ліміт
+                $output[] = "Семестр {$semester}: {$selected}/{$max} ";
+            }
         }
 
         $description = count($output) ? implode(', ', $output) : "Ще не вибрано жодного предмету";
@@ -308,8 +310,8 @@ class SelsubjectListScreen extends Screen
                 ->where('semester', $semester)
                 ->count();
 
-            $groupLimit = $userSpecialty->group->semesterLimits
-                ->firstWhere('semester', $semester)?->max_subjects ?? 0;
+            $groupLimit = $userSpecialty->group?->semesterLimits
+                ?->firstWhere('semester', $semester)?->max_subjects ?? 0;
 
             if($selectedSubjectsCount >= $groupLimit){
                 Toast::warning("Ви вже вибрали максимальну кількість предметів для {$semester} семестру ({$groupLimit})");

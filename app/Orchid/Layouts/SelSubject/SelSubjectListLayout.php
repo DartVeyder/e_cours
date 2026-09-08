@@ -35,7 +35,7 @@ class SelSubjectListLayout extends Table
     {
 
         return [
-//            TD::make('is_selected','Вибрано')
+            //            TD::make('is_selected','Вибрано')
 //                ->sort()
 //                ->render(function ($subject) {
 //
@@ -50,88 +50,93 @@ class SelSubjectListLayout extends Table
 //                            'subjectName' => $subject->name,
 //                        ]);
 //                })->canSee(!empty( request()->cookie('user_specialty_id'))) ,
-            TD::make('semester','Вибрано семестр')
+            TD::make('semester', 'Вибрано семестр')
                 ->sort()
-                ->render(function ($subject  ) {
-                    $list = [];
+                ->render(function ($subject) {
+                    $list          = [];
                     $userSpecialty = UserSpecialty::with('group')->find(request()->cookie('user_specialty_id'));
-                    
+
                     $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
-                    $user = \Illuminate\Support\Facades\Auth::user();
-                    $canSelect = $isSelectionEnabled || ($user && ($user->roles->contains('slug', 'dekanat') || $user->hasAccess('platform.systems.roles')));
+                    $user               = \Illuminate\Support\Facades\Auth::user();
+                    $canSelect          = $isSelectionEnabled || ($user && ($user->roles->contains('slug', 'dekanat') || $user->hasAccess('platform.systems.roles')));
 
                     if (!$canSelect) {
                         $style = is_null($subject->is_student_choice) ? 'font-size:20px;' : ($subject->is_student_choice == 1 ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;');
                         return "<span style='{$style} display: inline-block; padding: 6px 12px;'>" . ($subject->semester ?? '-') . "</span>";
                     }
 
-                    for($i=0;$i<=$userSpecialty->group->semester_count;$i++){
-                       if($subject->semester != $i) {
-                           $list[$i] =  Button::make(($i == 0)? "-": $i)
-                               ->method('chooseSubject',
-                                   [
-                                       'subjectId' => $subject->id,
-                                       'subjectName' => $subject->name,
-                                       'semester' => $i,
-                                   ]);
-                       }
+                    $semesterCount = $userSpecialty?->group?->semester_count ?? 0;
+                    for ($i = 0; $i <= $semesterCount; $i++) {
+                        if ($subject->semester != $i) {
+                            $list[$i] = Button::make(($i == 0) ? "-" : $i)
+                                ->method(
+                                    'chooseSubject',
+                                    [
+                                        'subjectId'   => $subject->id,
+                                        'subjectName' => $subject->name,
+                                        'semester'    => $i,
+                                    ]
+                                );
+                        }
                     }
                     return DropDown::make($subject->semester ?? '-')
-                        ->list( $list)
-                        ->style( ($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
+                        ->list($list)
+                        ->style(($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
                         ->style(is_null($subject->is_student_choice)
                             ? 'font-size:20px;'                     // якщо немає вибору
                             : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'));
                 })
 
-              //->width('150px')
-              //->style('background:blue')
-                ->canSee(!empty( request()->cookie('user_specialty_id'))) ,
-//            TD::make('id','ID')
+                //->width('150px')
+                //->style('background:blue')
+                ->canSee(!empty(request()->cookie('user_specialty_id'))),
+            //            TD::make('id','ID')
 //                ->sort()
 //                ->width('70px'),
 
-            TD::make('name','Дисципліна')
+            TD::make('name', 'Дисципліна')
                 ->filter(TD::FILTER_TEXT)
                 ->sort(),
-            TD::make('chair','Кафедра')
-                 ->filter( TD::FILTER_SELECT,Subject::distinct()->pluck('chair','chair'))
+            TD::make('chair', 'Кафедра')
+                ->filter(TD::FILTER_SELECT, Subject::distinct()->pluck('chair', 'chair'))
 
                 ->sort(),
-            TD::make('annotation','Анотація')
-                ->render(function ($subject) {
-                if (empty($subject->annotation)) {
-                    return '';
-                }
-                return Link::make()
-                    ->icon('fa.file-pdf')
-                    ->href($subject->annotation  )
-                    ->style('font-size:20px;')
-                    ->target('_blank') ;
-            }
-            ),
-            
-            
-            TD::make('control_type','Вид контролю'),
-            TD::make('credits','Кількість кредитів'),
-            TD::make('status','Статус дисципліни'),
-            TD::make('study_semester','Вивчення у семестрі'),
-            TD::make('max_min_students','Макс/мін. кількість здобувачів')
+            TD::make('annotation', 'Анотація')
+                ->render(
+                    function ($subject) {
+                        if (empty($subject->annotation)) {
+                            return '';
+                        }
+                        return Link::make()
+                            ->icon('fa.file-pdf')
+                            ->href($subject->annotation)
+                            ->style('font-size:20px;')
+                            ->target('_blank');
+                    }
+                ),
+
+
+            TD::make('control_type', 'Вид контролю'),
+            TD::make('credits', 'Кількість кредитів'),
+            TD::make('status', 'Статус дисципліни'),
+            TD::make('study_semester', 'Вивчення у семестрі'),
+            TD::make('max_min_students', 'Макс/мін. кількість здобувачів')
                 ->sort(),
-            TD::make('not_for_op','Для яких ОП не може читатися'),
-            TD::make('code','Шифр'),
-            TD::make('work_program','Робоча програма')
-                ->render(function ($subject) {
-                if (empty($subject->work_program)) {
-                    return '';
-                }
-                return Link::make()
-                    ->icon('fa.file-pdf')
-                    ->href($subject->work_program  )
-                    ->style('font-size:20px;')
-                    ->target('_blank') ;
-            }
-            ),
+            TD::make('not_for_op', 'Для яких ОП не може читатися'),
+            TD::make('code', 'Шифр'),
+            TD::make('work_program', 'Робоча програма')
+                ->render(
+                    function ($subject) {
+                        if (empty($subject->work_program)) {
+                            return '';
+                        }
+                        return Link::make()
+                            ->icon('fa.file-pdf')
+                            ->href($subject->work_program)
+                            ->style('font-size:20px;')
+                            ->target('_blank');
+                    }
+                ),
         ];
     }
 

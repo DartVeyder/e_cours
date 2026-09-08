@@ -65,4 +65,63 @@ class UserSpecialty extends Model
     public function group(){
         return $this->belongsTo(Group::class);
     }
+
+    public static function parseDateValue($value, bool $withTime = false): ?string
+    {
+        if ($value === null || $value === '' || $value === '?' || $value === '-') {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $withTime ? $value->format('Y-m-d H:i:s') : $value->format('Y-m-d');
+        }
+
+        $trimmed = trim((string)$value);
+        if ($trimmed === '' || $trimmed === '?' || $trimmed === '-') {
+            return null;
+        }
+
+        try {
+            $carbon = \Carbon\Carbon::parse($trimmed);
+            return $withTime ? $carbon->format('Y-m-d H:i:s') : $carbon->format('Y-m-d');
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public function setBirthDateAttribute($value)
+    {
+        $this->attributes['birth_date'] = self::parseDateValue($value);
+    }
+
+    public function setIssueDateAttribute($value)
+    {
+        $this->attributes['issue_date'] = self::parseDateValue($value);
+    }
+
+    public function setValidUntilAttribute($value)
+    {
+        $this->attributes['valid_until'] = self::parseDateValue($value);
+    }
+
+    public function setStudyStartAttribute($value)
+    {
+        $this->attributes['study_start'] = self::parseDateValue($value);
+    }
+
+    public function setStudyEndAttribute($value)
+    {
+        $this->attributes['study_end'] = self::parseDateValue($value);
+    }
+
+    public function setNextLevelAdmissionDateAttribute($value)
+    {
+        $this->attributes['next_level_admission_date'] = self::parseDateValue($value);
+    }
+
+    public function setLastUpdateAttribute($value)
+    {
+        $this->attributes['last_update'] = self::parseDateValue($value, true);
+    }
 }
+

@@ -13,3 +13,4 @@ Route::get('/export/group/{group}/excel', [GroupExportController::class, 'export
 
 // API endpoint for retrieving students list along with chosen subjects
 Route::get('/api/students-subjects', [\App\Http\Controllers\Api\StudentSubjectController::class, 'index']);
+
