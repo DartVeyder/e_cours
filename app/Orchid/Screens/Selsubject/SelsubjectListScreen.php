@@ -49,8 +49,17 @@ class SelsubjectListScreen extends Screen
                         ->limit(1);
                 },
             ])
-
-            ->where('active', 1)
+            ->where(function ($query) use ($specialtyId) {
+                $query->where('active', 1);
+                if ($specialtyId) {
+                    $query->orWhereExists(function ($sub) use ($specialtyId) {
+                        $sub->selectRaw(1)
+                            ->from('user_specialty_subjects')
+                            ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
+                            ->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                    });
+                }
+            })
             ->with(['users.specialties.group']);
 
         // Якщо в користувача є роль "деканат", додаємо фільтри
@@ -304,6 +313,11 @@ class SelsubjectListScreen extends Screen
         ])->first();
 
         if($semester > 0){
+            $subject = Subject::find($subjectId);
+            if ($subject && !$subject->active && !$userSpecialtySubject) {
+                Toast::warning("Дисципліна «{$subjectName}» неактивна для нового вибору у поточному навчальному році.");
+                return;
+            }
 
             // Підраховуємо скільки предметів вже вибрано для цього семестру
             $selectedSubjectsCount = UserSpecialtySubject::where('user_specialty_id', $userSpecialtyId)

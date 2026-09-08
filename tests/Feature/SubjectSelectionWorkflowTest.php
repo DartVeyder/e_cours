@@ -245,4 +245,68 @@ class SubjectSelectionWorkflowTest extends TestCase
             'semester' => 1,
         ]);
     }
+
+    public function test_new_selection_blocked_for_inactive_subject(): void
+    {
+        $user = User::factory()->create(['permissions' => ['platform.index' => true]]);
+        $group = Group::create(['name' => 'КН-31', 'semester_count' => 8]);
+        GroupSemesterLimit::create(['group_id' => $group->id, 'semester' => 1, 'max_subjects' => 3]);
+
+        $specialty = UserSpecialty::create([
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'card_id' => 'CARD-777',
+            'group_id' => $group->id,
+            'group_name' => $group->name,
+            'full_name' => 'Олена Петренко',
+        ]);
+
+        $inactiveSubject = Subject::create(['name' => 'Минулорічна неактивна дисципліна', 'active' => 0]);
+
+        $response = $this->actingAs($user)
+            ->withCookie('user_specialty_id', $specialty->id)
+            ->post('/selsubjects/chooseSubject?subjectId=' . $inactiveSubject->id . '&subjectName=' . urlencode($inactiveSubject->name) . '&semester=1');
+
+        $response->assertStatus(302);
+
+        $this->assertDatabaseMissing('user_specialty_subjects', [
+            'user_specialty_id' => $specialty->id,
+            'subject_id' => $inactiveSubject->id,
+        ]);
+    }
+
+    public function test_previous_selection_preserved_and_visible_for_inactive_subject(): void
+    {
+        $user = User::factory()->create(['permissions' => ['platform.index' => true]]);
+        $group = Group::create(['name' => 'КН-31', 'semester_count' => 8]);
+        GroupSemesterLimit::create(['group_id' => $group->id, 'semester' => 1, 'max_subjects' => 3]);
+
+        $specialty = UserSpecialty::create([
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'card_id' => 'CARD-888',
+            'group_id' => $group->id,
+            'group_name' => $group->name,
+            'full_name' => 'Богдан Коваль',
+        ]);
+
+        $inactiveSubject = Subject::create(['name' => 'Історія педагогіки (архів)', 'active' => 0]);
+
+        // Previously selected record exists in database
+        UserSpecialtySubject::create([
+            'user_id' => $user->id,
+            'user_specialty_id' => $specialty->id,
+            'subject_id' => $inactiveSubject->id,
+            'semester' => 1,
+            'is_student_choice' => true,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->withCookie('user_specialty_id', $specialty->id)
+            ->get(route('platform.selsubjects'));
+
+        $response->assertOk();
+        $response->assertSee('Історія педагогіки (архів)');
+        $response->assertSee('Архівна');
+    }
 }

@@ -96,7 +96,14 @@ class SelSubjectListLayout extends Table
 
             TD::make('name', 'Дисципліна')
                 ->filter(TD::FILTER_TEXT)
-                ->sort(),
+                ->sort()
+                ->render(function ($subject) {
+                    $html = e($subject->name);
+                    if (!$subject->active) {
+                        $html .= ' <span class="badge bg-secondary text-white" style="font-size: 0.75rem; vertical-align: middle;">Архівна</span>';
+                    }
+                    return $html;
+                }),
             TD::make('chair', 'Кафедра')
                 ->filter(TD::FILTER_SELECT, Subject::distinct()->pluck('chair', 'chair'))
 
