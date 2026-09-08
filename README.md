@@ -1,61 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# E-Cours (Платформа вибіркових дисциплін)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Система автоматизації вибору вибіркових навчальних дисциплін для студентів Дрогобицького державного педагогічного університету імені Івана Франка (ДДПУ).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 Основний функціонал
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🎓 Для студентів:
+- **Авторизація через Google Workspace (SSO)** за корпоративною поштою (`@dspu.edu.ua`).
+- **Автоматична ідентифікація**: автоматичне завантаження даних картки здобувача (спеціальність, ступінь, факультет, група).
+- **Каталог дисциплін**: перегляд списку доступних вибіркових компонентів з анотаціями, робочими програмами (PDF), кількістю кредитів, кафедрами тощо.
+- **Вибір дисциплін по семестрах**: інтерактивний вибір із перевіркою лімітів групи на кожен семестр у реальному часі.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🏛 Для деканатів та адміністрації:
+- **Панель управління (Orchid Platform)**: зручний інтерфейс для моніторингу вибору дисциплін.
+- **Імпорт студентів з Google Sheets (ЄДЕБО)**: синхронізація реєстру здобувачів (підтримка студентів з групами та без груп, нормалізація дат народження, наказів, паспортних даних).
+- **Імпорт дисциплін з Google Sheets**: завантаження та оновлення каталогу дисциплін, статусів активності та освітніх рівнів.
+- **Гнучке керування групами**: налаштування лімітів вибіркових дисциплін (`max_subjects`) для кожного семестру кожної групи.
+- **Управління доступом**: глобальне відкриття/закриття кампанії вибору дисциплін у налаштуваннях системи.
+- **Експорт звітів**:
+  - Експорт сформованих відомостей у файл **Excel (.xlsx)**.
+  - Двостороння вигрузка звітів у **Google Sheets**.
+- **Журнал аудиту (Activity Log)**: детальне логування всіх дій (вхід користувачів, вибір/скасування дисципліни студентом або адміністратором).
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠 Технологічний стек
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Бекенд**: PHP 8.2+, Laravel 12.x
+- **Адмін-панель**: [Orchid Platform 14.x](https://orchid.software)
+- **База даних**: MySQL / MariaDB
+- **Автентифікація**: Laravel Socialite (Google OAuth 2.0)
+- **Інтеграції**: Google Sheets API Client (`google/apiclient`)
+- **Експорт**: `phpoffice/phpspreadsheet`
+- **Аудит**: `spatie/laravel-activitylog`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🚀 Встановлення та розгортання
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Клонування репозиторію
+```bash
+git clone https://github.com/DartVeyder/e_cours.git
+cd e_cours
+```
 
-### Premium Partners
+### 2. Встановлення залежностей
+```bash
+composer install
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 3. Налаштування оточення (`.env`)
+Створіть файл `.env` на основі зразка:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+Заповніть підключення до бази даних та ключі інтеграцій у `.env`:
+```env
+APP_NAME="E-Cours"
+APP_URL=http://localhost:8000
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cours_bd
+DB_USERNAME=root
+DB_PASSWORD=
 
-## Code of Conduct
+# Google OAuth (для авторизації через Google)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Google Sheets API (шлях до сервісного JSON-ключа)
+GOOGLE_SERVICE_ACCOUNT_JSON=storage/app/google/credentials.json
 
-## Security Vulnerabilities
+# Режим Google Таблиць: production (робочий) або test (тестовий)
+GOOGLE_SHEETS_MODE=production
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Робочі таблиці (Production)
+GOOGLE_SHEETS_STUDENTS_ID=1mgLhc_jg_XSFbXjqx32xLzXTapHNMyR1kF9xASkHh_A
+GOOGLE_SHEETS_SUBJECTS_ID=1DeCO1hKHqcYPcriPcaIz3LAZVCFKpmfjdkspNu1Is2w
 
-## License
+# Тестові таблиці (Test)
+GOOGLE_SHEETS_STUDENTS_TEST_ID=your-test-students-spreadsheet-id
+GOOGLE_SHEETS_SUBJECTS_TEST_ID=your-test-subjects-spreadsheet-id
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 4. Міграції БД
+```bash
+php artisan migrate
+```
+
+### 5. Створення облікового запису адміністратора
+```bash
+php artisan orchid:admin admin admin@dspu.edu.ua password
+```
+
+### 6. Запуск сервера
+```bash
+php artisan serve
+```
+Адмін-панель доступна за адресою: `http://localhost:8000/admin` (або `/platform`).
+
+---
+
+## 📁 Структура проєкту
+
+```
+app/
+├── Http/
+│   └── Controllers/
+│       ├── AuthController.php            # Авторизація через Google SSO та прив'язка спеціальності
+│       ├── GroupExportController.php     # Експорт відомостей групи в Excel
+│       └── Api/                          # REST API контролери
+├── Models/
+│   ├── User.php                          # Користувачі системи
+│   ├── UserSpecialty.php                 # Дані картки студента (нормалізація дат, статус, ЄДЕБО)
+│   ├── Subject.php                       # Навчальні дисципліни
+│   ├── Group.php                         # Академічні групи
+│   ├── GroupSemesterLimit.php            # Ліміти вибіркових дисциплін по семестрах
+│   ├── Department.php                    # Факультети / навчальні підрозділи
+│   ├── Degree.php                        # Рівні освіти (Бакалавр, Магістр)
+│   └── Setting.php                       # Системні налаштування (наприклад, відкриття вибору)
+├── Orchid/
+│   ├── Screens/
+│   │   ├── Selsubject/                   # Екран вибору дисциплін для студента
+│   │   ├── Subject/                      # Список дисциплін, імпорт/експорт
+│   │   ├── Student/                      # Реєстр студентів, перегляд груп
+│   │   ├── Group/                        # Управління групами та лімітами
+│   │   ├── Setting/                      # Налаштування кампанії
+│   │   └── ActivityLogScreen.php         # Перегляд журналу аудиту
+│   ├── Layouts/                          # Таблиці, фільтри, форми для Orchid
+│   └── Filters/                          # Фільтри для реєстрів (наприклад, стан вибору)
+└── Services/
+    ├── GoogleSheet/                      # Сервіси роботи з Google Таблицями (студенти, дисципліни, звіти)
+    └── StudentsExcelExport.php           # Генератор звітів Excel
+```
+
+---
+
+## 👥 Ролі та права
+
+1. **Студент** (роль за замовчуванням при вході через Google):
+   - Доступ до перегляду вибіркових компонентів свого освітнього ступеня.
+   - Вибір дисциплін у межах встановленого для групи ліміту.
+2. **Деканат (`dekanat`)**:
+   - Перегляд студентів свого факультету.
+   - Вибір/коригування дисциплін за студента.
+   - Експорт звітів по групах факультету.
+3. **Адміністратор (`platform.systems.roles` / суперкористувач)**:
+   - Повний доступ до всіх реєстрів, системних налаштувань, імпорту/експорту та журналів аудиту.
+
+---
+
+## 📜 Журнал змін (Changelog)
+
+Повну історію версій та оновлень дивіться у файлі [CHANGELOG.md](file:///e:/OSPanel/home/e-cours.loc/CHANGELOG.md).
+
+### Останні оновлення (2026-09-08):
+- **Нормалізація дат**: усунено помилки `SQLSTATE[22007]` при імпорті дат у форматах `m/d/Y` та `d.m.Y` через мутатори в `UserSpecialty`.
+- **Підтримка студентів без груп**: додано можливість безпечного імпорту та авторизації студентів без призначеної академічної групи.
+- **Стабільність інтерфейсу**: виправлено помилки звернення до властивостей `null` на екранах вибору дисциплін.
+- **Документація**: додано технічну документацію [docs/TECHNICAL_DOCUMENTATION.md](file:///e:/OSPanel/home/e-cours.loc/docs/TECHNICAL_DOCUMENTATION.md).
+
+---
+
+## 📄 Ліцензія
+Внутрішня розробка для потреб Дрогобицького державного педагогічного університету імені Івана Франка.
+
