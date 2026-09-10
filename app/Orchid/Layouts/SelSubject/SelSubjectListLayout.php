@@ -33,31 +33,24 @@ class SelSubjectListLayout extends Table
      */
     protected function columns(): iterable
     {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $specialtyId = request()->cookie('user_specialty_id');
+        if (!$specialtyId && $user && $user->loadMissing('specialties')->specialties->count() === 1) {
+            $specialtyId = $user->specialties->first()->id;
+        }
 
         return [
-            //            TD::make('is_selected','Вибрано')
-//                ->sort()
-//                ->render(function ($subject) {
-//
-//                    return Button::make('')
-//                        ->icon(($subject->is_selected)? 'fa.check-square': 'fa.square')
-//                        ->style( ($subject->is_student_choice == 1) ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;')
-//                        ->style(is_null($subject->is_student_choice)
-//                            ? 'font-size:20px;'                     // якщо немає вибору
-//                            : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'))
-//                        ->method('chooseSubject', [
-//                            'subjectId' => $subject->id,
-//                            'subjectName' => $subject->name,
-//                        ]);
-//                })->canSee(!empty( request()->cookie('user_specialty_id'))) ,
             TD::make('semester', 'Вибрано семестр')
                 ->sort()
-                ->render(function ($subject) {
+                ->render(function ($subject) use ($user, $specialtyId) {
+                    if (!$specialtyId) {
+                        return "<span class='badge bg-warning bg-opacity-25 text-dark border border-warning' style='font-size: 0.8rem;' title='Оберіть спеціальність для вибору семестру'>Оберіть спеціальність</span>";
+                    }
+
                     $list          = [];
-                    $userSpecialty = UserSpecialty::with('group')->find(request()->cookie('user_specialty_id'));
+                    $userSpecialty = UserSpecialty::with('group')->find($specialtyId);
 
                     $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
-                    $user               = \Illuminate\Support\Facades\Auth::user();
                     $canSelect          = $isSelectionEnabled || ($user && ($user->roles->contains('slug', 'dekanat') || $user->hasAccess('platform.systems.roles')));
 
                     if (!$canSelect) {
@@ -85,11 +78,7 @@ class SelSubjectListLayout extends Table
                         ->style(is_null($subject->is_student_choice)
                             ? 'font-size:20px;'                     // якщо немає вибору
                             : ($subject->is_student_choice ? 'color:#0d6efd;font-size:20px;' : 'color:red;font-size:20px;'));
-                })
-
-                //->width('150px')
-                //->style('background:blue')
-                ->canSee(!empty(request()->cookie('user_specialty_id'))),
+                }),
             //            TD::make('id','ID')
 //                ->sort()
 //                ->width('70px'),

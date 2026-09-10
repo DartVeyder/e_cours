@@ -8,11 +8,43 @@ use App\Models\Subject;
 use App\Models\UserSpecialty;
 use App\Models\UserSpecialtySubject;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
+use Orchid\Support\Facades\Toast;
 
 class MainScreen extends Screen
 {
+    /**
+     * Resolve active specialty ID from cookie or auto-select if user has only 1 specialty.
+     *
+     * @return int|null
+     */
+    public function resolveSpecialtyId(): ?int
+    {
+        $specialtyId = request()->cookie('user_specialty_id');
+        $user = Auth::user();
+
+        if ($specialtyId && UserSpecialty::where('id', $specialtyId)->exists()) {
+            return (int) $specialtyId;
+        }
+
+        if ($user) {
+            $user->loadMissing('specialties');
+            $specialties = $user->specialties;
+
+            if ($specialties->count() === 1) {
+                $autoId = (int) $specialties->first()->id;
+                Cookie::queue('user_specialty_id', $autoId, 1440);
+                return $autoId;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Fetch data to be displayed on the screen.
      *
@@ -22,7 +54,7 @@ class MainScreen extends Screen
     {
         $user = Auth::user();
         if ($user) {
-            $user->load(['department', 'degree', 'roles']);
+            $user->load(['department', 'degree', 'roles', 'specialties']);
         }
 
         $isAdmin = $user && (
@@ -67,17 +99,16 @@ class MainScreen extends Screen
 
         // Student-specific context
         $studentSpecialty = null;
+        $userSpecialties = $user ? $user->specialties : collect();
         $selectedSubjects = collect();
         $maxSubjectsLimit = 0;
         $selectionProgressPercent = 0;
 
         if ($user) {
-            $specialtyId = request()->cookie('user_specialty_id');
+            $specialtyId = $this->resolveSpecialtyId();
+
             if ($specialtyId) {
                 $studentSpecialty = UserSpecialty::with(['group.semesterLimits', 'subjects'])->find($specialtyId);
-            }
-            if (!$studentSpecialty && $user->specialties()->exists()) {
-                $studentSpecialty = $user->specialties()->with(['group.semesterLimits', 'subjects'])->first();
             }
 
             if ($studentSpecialty) {
@@ -91,7 +122,7 @@ class MainScreen extends Screen
             }
         }
 
-        $isStudent = !$isStaff || ($studentSpecialty !== null);
+        $isStudent = !$isStaff || ($studentSpecialty !== null) || ($userSpecialties->isNotEmpty());
 
         return [
             'user' => $user,
@@ -108,6 +139,8 @@ class MainScreen extends Screen
             'studentsWithSelectionsCount' => $studentsWithSelectionsCount,
             'recentActivities' => $recentActivities,
             'studentSpecialty' => $studentSpecialty,
+            'userSpecialties' => $userSpecialties,
+            'hasSpecialtySelected' => ($studentSpecialty !== null),
             'selectedSubjects' => $selectedSubjects,
             'maxSubjectsLimit' => $maxSubjectsLimit,
             'selectionProgressPercent' => $selectionProgressPercent,
@@ -132,6 +165,49 @@ class MainScreen extends Screen
         return 'Огляд системи та статус вибору вибіркових дисциплін';
     }
 
+    private function specialtiesButtons()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return Button::make('Виберіть спеціальність')->disabled();
+        }
+
+        $specialties = $user->loadMissing('specialties')->specialties;
+        if ($specialties->isEmpty()) {
+            return null;
+        }
+
+        $userSpecialtyId = $this->resolveSpecialtyId();
+
+        if (!$userSpecialtyId) {
+            $titleButtons = '⚠️ Виберіть спеціальність';
+        } else {
+            $userSpecialty = UserSpecialty::with('group')->find($userSpecialtyId);
+            if ($userSpecialty) {
+                $groupName = $userSpecialty->group_name ?? ($userSpecialty->group?->name ?? 'Без групи');
+                $semesterCount = $userSpecialty->group?->semester_count ?? 0;
+                $titleButtons = "🎓 {$userSpecialty->specialty} ({$groupName}, {$userSpecialty->degree}, {$userSpecialty->full_name}, Семестрів: {$semesterCount})";
+            } else {
+                $titleButtons = '⚠️ Виберіть спеціальність';
+            }
+        }
+
+        $array = [];
+        foreach ($specialties as $specialty) {
+            $isCurrent = ($specialty->id == $userSpecialtyId);
+            $prefix = $isCurrent ? '✓ ' : '';
+            $groupName = $specialty->group_name ?? ($specialty->group?->name ?? 'Без групи');
+            $label = $prefix . $specialty->specialty . " ({$groupName})";
+            $array[] = Button::make($label)
+                ->method('chooseSpecialty', [
+                    'id' => $specialty->id,
+                    'text' => $specialty->specialty . " ({$groupName})",
+                ]);
+        }
+
+        return DropDown::make($titleButtons)->list($array);
+    }
+
     /**
      * The screen's action buttons.
      *
@@ -139,7 +215,13 @@ class MainScreen extends Screen
      */
     public function commandBar(): iterable
     {
-        return [];
+        $buttons = [];
+        $specialtiesDropdown = $this->specialtiesButtons();
+        if ($specialtiesDropdown) {
+            $buttons[] = $specialtiesDropdown;
+        }
+
+        return $buttons;
     }
 
     /**
@@ -152,6 +234,24 @@ class MainScreen extends Screen
         return [
             Layout::view('main')
         ];
+    }
+
+    public function chooseSpecialty($id = null, $text = null)
+    {
+        $id = $id ?? request('id');
+        $text = $text ?? request('text');
+
+        if ($id) {
+            Cookie::queue('user_specialty_id', $id, 1440);
+        }
+        Toast::info("Вибрано: " . $text);
+
+        activity()
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'specialty_name' => $text
+            ])
+            ->log("Вибір спеціальності на головній: {$text}");
     }
 }
 

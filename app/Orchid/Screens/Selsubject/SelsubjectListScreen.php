@@ -19,34 +19,74 @@ use Orchid\Support\Facades\Toast;
 class SelsubjectListScreen extends Screen
 {
     /**
+     * Resolve active specialty ID from cookie or auto-select if user has only 1 specialty.
+     *
+     * @return int|null
+     */
+    public function resolveSpecialtyId(): ?int
+    {
+        $specialtyId = request()->cookie('user_specialty_id');
+        $user = Auth::user();
+
+        if ($specialtyId && UserSpecialty::where('id', $specialtyId)->exists()) {
+            return (int) $specialtyId;
+        }
+
+        if ($user) {
+            $user->loadMissing('specialties');
+            $specialties = $user->specialties;
+
+            if ($specialties->count() === 1) {
+                $autoId = (int) $specialties->first()->id;
+                Cookie::queue('user_specialty_id', $autoId, 1440);
+                return $autoId;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Fetch data to be displayed on the screen.
      *
      * @return array
      */
     public function query(): iterable
     {
-        $user = Auth::user()->load(['department', 'degree', 'roles']);
-        $specialtyId = request()->cookie('user_specialty_id');
+        $user = Auth::user()->load(['department', 'degree', 'roles', 'specialties']);
+        $specialtyId = $this->resolveSpecialtyId();
 
         $subjectsQuery = Subject::filters()
             ->defaultSort('is_selected', 'DESC')
             ->withCount(['users as is_selected' => function ($query) use ($specialtyId) {
-                $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                if ($specialtyId) {
+                    $query->where('user_specialty_subjects.user_specialty_id', $specialtyId);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
             }])
             ->addSelect([
                 'is_student_choice' => function ($query) use ($specialtyId) {
-                    $query->select('user_specialty_subjects.is_student_choice')
-                        ->from('user_specialty_subjects')
-                        ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
-                        ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
-                        ->limit(1);
+                    if ($specialtyId) {
+                        $query->select('user_specialty_subjects.is_student_choice')
+                            ->from('user_specialty_subjects')
+                            ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
+                            ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
+                            ->limit(1);
+                    } else {
+                        $query->selectRaw('NULL');
+                    }
                 },
                 'semester' => function ($query) use ($specialtyId) {
-                    $query->select('user_specialty_subjects.semester')
-                        ->from('user_specialty_subjects')
-                        ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
-                        ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
-                        ->limit(1);
+                    if ($specialtyId) {
+                        $query->select('user_specialty_subjects.semester')
+                            ->from('user_specialty_subjects')
+                            ->whereColumn('user_specialty_subjects.subject_id', 'subjects.id')
+                            ->where('user_specialty_subjects.user_specialty_id', $specialtyId)
+                            ->limit(1);
+                    } else {
+                        $query->selectRaw('NULL');
+                    }
                 },
             ])
             ->where(function ($query) use ($specialtyId) {
@@ -62,27 +102,23 @@ class SelsubjectListScreen extends Screen
             })
             ->with(['users.specialties.group']);
 
-        // Якщо в користувача є роль "деканат", додаємо фільтри
-//        if ($user && $user->roles->contains('slug', 'dekanat')) {
-//            if ($user->department) {
-//                $subjectsQuery->where('department', $user->department->name);
-//            }
-//        }
-
-        // Якщо в cookie є user_specialty_id — обмежуємо предмети його рівнем освіти
+        // Якщо є активна спеціальність — обмежуємо предмети її рівнем освіти
         if ($specialtyId) {
             $userSpecialty = UserSpecialty::find($specialtyId);
 
             if ($userSpecialty && $userSpecialty->degree) {
                 $subjectsQuery->where('education_level', $userSpecialty->degree);
             }
-        }else{
-            if ($user->degree) {
+        } else {
+            if ($user && $user->degree) {
                 $subjectsQuery->where('education_level', $user->degree->name);
+            } elseif ($user && $user->loadMissing('specialties')->specialties->isNotEmpty()) {
+                $degrees = $user->specialties->pluck('degree')->filter()->unique();
+                if ($degrees->count() === 1) {
+                    $subjectsQuery->where('education_level', $degrees->first());
+                }
             }
         }
-
-     // dd($subjectsQuery->paginate());
 
         return [
             'subjects' => $subjectsQuery->paginate(),
@@ -102,10 +138,17 @@ class SelsubjectListScreen extends Screen
 
     public function description(): ?string
     {
-        $userSpecialtyId = request()->cookie('user_specialty_id');
+        $userSpecialtyId = $this->resolveSpecialtyId();
+        $user = Auth::user();
 
         if (!$userSpecialtyId) {
-            return "Виберіть спеціальність";
+            if ($user && $user->loadMissing('specialties')->specialties->count() > 1) {
+                return "⚠️ Спеціальність не обрана. Оберіть спеціальність у верхньому меню для доступу до вибору дисциплін.";
+            }
+            if ($user && $user->loadMissing('specialties')->specialties->count() === 0) {
+                return "⚠️ Картку спеціальності не знайдено. Зверніться до деканату для внесення даних.";
+            }
+            return "⚠️ Спеціальність не обрана. Без вибору спеціальності вибір дисциплін неможливий.";
         }
 
         $userSpecialty = UserSpecialty::with('group.semesterLimits')->find($userSpecialtyId);
@@ -134,7 +177,6 @@ class SelsubjectListScreen extends Screen
         $description = count($output) ? implode(', ', $output) : "Ще не вибрано жодного предмету";
 
         $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
-        $user = \Illuminate\Support\Facades\Auth::user();
         if (!$isSelectionEnabled && (!$user || (!$user->roles->contains('slug', 'dekanat') && !$user->hasAccess('platform.systems.roles')))) {
             $description .= " | 🔴 Увага! Редагування списку дисциплін наразі закрите адміністрацією.";
         }
@@ -146,40 +188,44 @@ class SelsubjectListScreen extends Screen
     private function specialtiesButtons()
     {
         $array = [];
-        $specialties = Auth::user()->load('specialties')->specialties;
+        $user = Auth::user();
+        if (!$user) {
+            return Button::make('Виберіть спеціальність')->disabled();
+        }
 
-        $userSpecialtyId = request()->cookie('user_specialty_id');
+        $specialties = $user->loadMissing('specialties')->specialties;
+        $userSpecialtyId = $this->resolveSpecialtyId();
 
-        if(!$userSpecialtyId){
-            $titleButtons = 'Виберіть спеціальність';
-        }else{
+        if (!$userSpecialtyId) {
+            $titleButtons = '⚠️ Виберіть спеціальність';
+        } else {
             $userSpecialty = UserSpecialty::with('group')->find($userSpecialtyId);
-
-            $titleButtons = " $userSpecialty->specialty ($userSpecialty->group_name, $userSpecialty->degree, $userSpecialty->full_name, Семестрів:  {$userSpecialty->group->semester_count})";
-        }
-
-        if( count($specialties) > 0 ){
-            foreach ($specialties as $specialty) {
-                $array[]  = Button::make($specialty->specialty . "( $specialty->group_name  )")
-                    ->method('chooseSpecialty',
-                        [
-                            'id' => $specialty->id,
-                            'text' => $specialty->specialty . "( $specialty->group_name  )",
-                        ]);
+            if ($userSpecialty) {
+                $groupName = $userSpecialty->group_name ?? ($userSpecialty->group?->name ?? 'Без групи');
+                $semesterCount = $userSpecialty->group?->semester_count ?? 0;
+                $titleButtons = "🎓 {$userSpecialty->specialty} ({$groupName}, {$userSpecialty->degree}, {$userSpecialty->full_name}, Семестрів: {$semesterCount})";
+            } else {
+                $titleButtons = '⚠️ Виберіть спеціальність';
             }
-            return DropDown::make( $titleButtons)
-                ->list(
-                    $array,
-                );
-        }else{
-               return Button::make(   $titleButtons )->disabled();
-
         }
 
-
-
-
-
+        if (count($specialties) > 0) {
+            foreach ($specialties as $specialty) {
+                $isCurrent = ($specialty->id == $userSpecialtyId);
+                $prefix = $isCurrent ? '✓ ' : '';
+                $groupName = $specialty->group_name ?? ($specialty->group?->name ?? 'Без групи');
+                $label = $prefix . $specialty->specialty . " ({$groupName})";
+                $array[] = Button::make($label)
+                    ->method('chooseSpecialty', [
+                        'id' => $specialty->id,
+                        'text' => $specialty->specialty . " ({$groupName})",
+                    ]);
+            }
+            return DropDown::make($titleButtons)
+                ->list($array);
+        } else {
+            return Button::make($titleButtons)->disabled();
+        }
     }
 
     /**
@@ -191,7 +237,6 @@ class SelsubjectListScreen extends Screen
     {
         return [
             $this->specialtiesButtons(),
-
         ];
     }
 
@@ -202,93 +247,24 @@ class SelsubjectListScreen extends Screen
      */
     public function layout(): iterable
     {
+        $specialtyId = $this->resolveSpecialtyId();
+        $user = Auth::user();
+        $userSpecialties = $user ? $user->loadMissing('specialties')->specialties : collect();
 
-        return [
-            SelSubjectListLayout::class,
-        ];
+        $layouts = [];
+
+        if (!$specialtyId) {
+            $layouts[] = Layout::view('partials.no-specialty-alert', [
+                'userSpecialties' => $userSpecialties,
+            ]);
+        }
+
+        $layouts[] = SelSubjectListLayout::class;
+
+        return $layouts;
     }
 
-//    public function chooseSubject($subjectId, $subjectName)
-//    {
-//        $userSpecialtyId = request()->cookie('user_specialty_id');
-//        $userSpecialty = UserSpecialty::find($userSpecialtyId);
-//
-//        if(!$userSpecialtyId){
-//            Toast::warning('Виберіть свою спеціальність');
-//            return;
-//        }
-//
-//        $userId = Auth::id();
-//
-//        $userSpecialtySubject = UserSpecialtySubject::where([
-//            'user_specialty_id' => $userSpecialtyId,
-//            'subject_id' => $subjectId,
-//        ])->first();
-//
-//        if($userSpecialtySubject){
-//            $userSpecialtySubject->delete();
-//            Toast::error("Дисципліна скасована «{$subjectName}»");
-//
-//            // Логування скасування дисципліни
-//            activity()
-//                ->causedBy(Auth::user())
-//                ->withProperties([
-//                    'subject_name' => $subjectName,
-//                    'specialty_name' => $userSpecialty->specialty,
-//                    'is_student_choice' => $userSpecialtySubject->is_student_choice
-//                ])
-//                ->log(
-//                    $userSpecialtySubject->is_student_choice
-//                        ? "Студент: {$userSpecialty->full_name} скасував дисципліну: {$subjectName} ({$userSpecialty->specialty})"
-//                        : "Дисципліна: {$subjectName} ({$userSpecialty->specialty}) скасована адміністратором за студента: {$userSpecialty->full_name}"
-//                );
-//
-//
-//            return;
-//        } else {
-//            $selectedSubjectsCount = UserSpecialtySubject::where('user_specialty_id', $userSpecialtyId)->count();
-//            $groupSheet = new GroupsSheet();
-//            $groups = array_column($groupSheet->readAssoc(), 'electiveCount','group');
-//            $electiveCount = $groups[$userSpecialty->group] ?? 6;
-//
-//            if($selectedSubjectsCount >= $electiveCount){
-//                Toast::warning('Можна обрати не більше '.$electiveCount.' дисциплін.');
-//                return;
-//            }
-//
-//            $userSpecialtySubjectData = [
-//                'user_id' => $userId,
-//                'user_specialty_id' => $userSpecialtyId,
-//                'subject_id' => $subjectId,
-//            ];
-//
-//            if ($userSpecialty->user_id != $userId) {
-//                $userSpecialtySubjectData['is_student_choice'] = false;
-//            } else {
-//                $userSpecialtySubjectData['is_student_choice'] = true;
-//            }
-//            $userSpecialtySubject = UserSpecialtySubject::create($userSpecialtySubjectData);
-//            Toast::success("Дисципліна обрана «{$subjectName}»");
-//
-//            // Логування вибору дисципліни
-//            activity()
-//                ->causedBy(Auth::user())
-//                ->withProperties([
-//                    'subject_name' => $subjectName,
-//                    'specialty_name' => $userSpecialty->specialty,
-//                    'is_student_choice' => $userSpecialtySubject->is_student_choice
-//                ])
-//                ->log(
-//                    $userSpecialtySubject->is_student_choice
-//                        ? "Дисципліна обрана студентом {$userSpecialty->full_name}: {$subjectName} ({$userSpecialty->specialty})"
-//                        : "Дисципліна:  {$subjectName} ({$userSpecialty->specialty})  призначена адміністратором за студента: {$userSpecialty->full_name} "
-//                );
-//
-//            return;
-//        }
-//    }
-
-    public  function chooseSubject($subjectId, $subjectName, $semester)
+    public function chooseSubject($subjectId, $subjectName, $semester)
     {
         $isSelectionEnabled = \App\Models\Setting::where('key', 'subject_selection_enabled')->value('value') !== '0';
         $user = \Illuminate\Support\Facades\Auth::user();
@@ -297,11 +273,11 @@ class SelsubjectListScreen extends Screen
             return;
         }
 
-        $userSpecialtyId = request()->cookie('user_specialty_id');
-        $userSpecialty = UserSpecialty::find($userSpecialtyId);
+        $userSpecialtyId = $this->resolveSpecialtyId();
+        $userSpecialty = $userSpecialtyId ? UserSpecialty::find($userSpecialtyId) : null;
 
-        if(!$userSpecialtyId){
-            Toast::warning('Виберіть свою спеціальність');
+        if (!$userSpecialtyId || !$userSpecialty) {
+            Toast::warning('Будь ласка, спочатку оберіть свою спеціальність');
             return;
         }
 
@@ -312,7 +288,7 @@ class SelsubjectListScreen extends Screen
             'subject_id' => $subjectId,
         ])->first();
 
-        if($semester > 0){
+        if ($semester > 0) {
             $subject = Subject::find($subjectId);
             if ($subject && !$subject->active && !$userSpecialtySubject) {
                 Toast::warning("Дисципліна «{$subjectName}» неактивна для нового вибору у поточному навчальному році.");
@@ -327,7 +303,7 @@ class SelsubjectListScreen extends Screen
             $groupLimit = $userSpecialty->group?->semesterLimits
                 ?->firstWhere('semester', $semester)?->max_subjects ?? 0;
 
-            if($selectedSubjectsCount >= $groupLimit){
+            if ($selectedSubjectsCount >= $groupLimit) {
                 Toast::warning("Ви вже вибрали максимальну кількість предметів для {$semester} семестру ({$groupLimit})");
                 return;
             }
@@ -346,33 +322,38 @@ class SelsubjectListScreen extends Screen
             );
 
             Toast::success("Дисципліна обрана «{$subjectName}» на {$semester} семестр");
-        }else{
-            $userSpecialtySubject->delete();
-            Toast::error("Дисципліна скасована «{$subjectName}»");
+        } else {
+            if ($userSpecialtySubject) {
+                $userSpecialtySubject->delete();
+                Toast::error("Дисципліна скасована «{$subjectName}»");
 
-            // Логування скасування дисципліни
-            activity()
-                ->causedBy(Auth::user())
-                ->withProperties([
-                    'subject_name' => $subjectName,
-                    'specialty_name' => $userSpecialty->specialty,
-                    'is_student_choice' => $userSpecialtySubject->is_student_choice
-                ])
-                ->log(
-                    $userSpecialtySubject->is_student_choice
-                        ? "Студент: {$userSpecialty->full_name} скасував дисципліну: {$subjectName} ({$userSpecialty->specialty})"
-                        : "Дисципліна: {$subjectName} ({$userSpecialty->specialty}) скасована адміністратором за студента: {$userSpecialty->full_name}"
-                );
-
-
+                // Логування скасування дисципліни
+                activity()
+                    ->causedBy(Auth::user())
+                    ->withProperties([
+                        'subject_name' => $subjectName,
+                        'specialty_name' => $userSpecialty->specialty,
+                        'is_student_choice' => $userSpecialtySubject->is_student_choice
+                    ])
+                    ->log(
+                        $userSpecialtySubject->is_student_choice
+                            ? "Студент: {$userSpecialty->full_name} скасував дисципліну: {$subjectName} ({$userSpecialty->specialty})"
+                            : "Дисципліна: {$subjectName} ({$userSpecialty->specialty}) скасована адміністратором за студента: {$userSpecialty->full_name}"
+                    );
+            }
             return;
-
         }
-
     }
-    public function chooseSpecialty($id, $text){
-        Cookie::queue('user_specialty_id', $id, 1440);
-        Toast::info("Вибрано: ".$text);
+
+    public function chooseSpecialty($id = null, $text = null)
+    {
+        $id = $id ?? request('id');
+        $text = $text ?? request('text');
+
+        if ($id) {
+            Cookie::queue('user_specialty_id', $id, 1440);
+        }
+        Toast::info("Вибрано: " . $text);
 
         // Логування вибору спеціальності
         activity()
@@ -382,6 +363,4 @@ class SelsubjectListScreen extends Screen
             ])
             ->log("Вибір спеціальності: {$text}");
     }
-
-
 }

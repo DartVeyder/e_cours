@@ -313,7 +313,7 @@
                     </h5>
 
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6 col-xl-3">
                             <div class="p-3 rounded-3 h-100 border" style="background: rgba(13, 110, 253, 0.03);">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="badge bg-primary rounded-circle">1</span>
@@ -325,7 +325,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6 col-xl-3">
                             <div class="p-3 rounded-3 h-100 border" style="background: rgba(25, 135, 84, 0.03);">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span class="badge bg-success rounded-circle">2</span>
@@ -337,10 +337,22 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="p-3 rounded-3 h-100 border" style="background: rgba(255, 193, 7, 0.05);">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-warning text-dark rounded-circle">3</span>
+                                    <h6 class="fw-bold mb-0 text-dark">Спеціальності та паралельне навчання</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    Для студентів з однією спеціальністю вибір активується автоматично. Студенти з декількома спеціальностями обирають активну картку для роздільного вибору курсів під кожну програму.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-xl-3">
                             <div class="p-3 rounded-3 h-100 border" style="background: rgba(111, 66, 193, 0.03);">
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="badge bg-primary rounded-circle" style="background: #6f42c1 !important;">3</span>
+                                    <span class="badge bg-primary rounded-circle" style="background: #6f42c1 !important;">4</span>
                                     <h6 class="fw-bold mb-0 text-dark">Коригування та експорт</h6>
                                 </div>
                                 <p class="text-muted small mb-0">
@@ -423,116 +435,189 @@
             </div>
         </div>
 
-        {{-- Student Profile & Choice Progress Cards --}}
-        <div class="row g-4 mb-4">
-            {{-- Student Info Card --}}
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: var(--bs-card-bg, #fff);">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-primary" viewBox="0 0 16 16">
-                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
-                            </svg>
-                            Дані студента
-                        </h5>
-                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-semibold">
-                            {{ $studentSpecialty->group_name ?? 'Без групи' }}
-                        </span>
-                    </div>
-
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <small class="text-muted d-block">ПІБ</small>
-                            <span class="fw-semibold text-dark">{{ $studentSpecialty->full_name ?? $user->name }}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <small class="text-muted d-block">Номер картки / ЄДЕБО</small>
-                            <span class="fw-semibold text-dark">{{ $studentSpecialty->card_id ?? '—' }}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <small class="text-muted d-block">Спеціальність</small>
-                            <span class="fw-semibold text-dark">{{ $studentSpecialty->specialty ?? '—' }}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <small class="text-muted d-block">Факультет / Інститут</small>
-                            <span class="fw-semibold text-dark">{{ $studentSpecialty->department ?? '—' }}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <small class="text-muted d-block">Освітня програма</small>
-                            <span class="fw-semibold text-dark">{{ $studentSpecialty->education_program ?? '—' }}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <small class="text-muted d-block">Ступінь та форма</small>
-                            <span class="fw-semibold text-dark">{{ $studentSpecialty->degree ?? 'Бакалавр' }} / {{ $studentSpecialty->study_form ?? 'Денна' }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Student Progress Card --}}
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: var(--bs-card-bg, #fff);">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-success" viewBox="0 0 16 16">
-                                <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V.5z"/>
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/>
-                            </svg>
-                            Стан вибору дисциплін
-                        </h5>
-                        @if($maxSubjectsLimit > 0 && $selectedSubjects->count() >= $maxSubjectsLimit)
-                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill fw-semibold">
-                                ✓ Вибір виконано
-                            </span>
-                        @else
-                            <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-1 rounded-pill fw-semibold">
-                                В процесі
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted fw-semibold">Обрано дисциплін:</span>
-                            <span class="fw-bold text-dark fs-5">
-                                {{ $selectedSubjects->count() }} @if($maxSubjectsLimit > 0) <span class="text-muted fs-6">/ {{ $maxSubjectsLimit }}</span> @endif
-                            </span>
-                        </div>
-                        <div class="progress" style="height: 12px; border-radius: 6px; background: rgba(0,0,0,0.06);">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated {{ $selectionProgressPercent >= 100 ? 'bg-success' : 'bg-primary' }}" 
-                                 role="progressbar" 
-                                 style="width: {{ $selectionProgressPercent }}%;" 
-                                 aria-valuenow="{{ $selectionProgressPercent }}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100"></div>
-                        </div>
-                    </div>
-
-                    @if($selectedSubjects->isNotEmpty())
-                        <div class="mb-0">
-                            <small class="text-muted fw-semibold d-block mb-2">Ваші обрані дисципліни:</small>
-                            <div class="d-flex flex-wrap gap-2" style="max-height: 120px; overflow-y: auto;">
-                                @foreach($selectedSubjects as $subj)
-                                    <span class="badge bg-light text-dark border px-2 py-1 rounded-pill small" title="{{ $subj->name }}">
-                                        @if($subj->pivot->semester)
-                                            <span class="text-primary fw-bold">{{ $subj->pivot->semester }} сем:</span>
-                                        @endif
-                                        {{ Str::limit($subj->name, 35) }}
-                                    </span>
-                                @endforeach
+        @if(!$hasSpecialtySelected)
+            {{-- Specialty Not Selected Alert Banner --}}
+            <div class="row mb-4">
+                <div class="col-12">
+                    @if($userSpecialties->isEmpty())
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-left: 5px solid #ff9800 !important;">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="d-flex align-items-start gap-4">
+                                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center text-warning flex-shrink-0" style="background: rgba(255, 152, 0, 0.15); width: 64px; height: 64px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h4 class="fw-bold text-dark mb-2">Картку здобувача не знайдено</h4>
+                                        <p class="text-secondary mb-3" style="font-size: 1.05rem; line-height: 1.6; max-width: 800px;">
+                                            За вашим обліковим записом наразі не закріплено жодної картки здобувача чи спеціальності. Без цього вибір вибіркових дисциплін неможливий. Будь ласка, зверніться до деканату вашого факультету для внесення даних до системи.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @else
-                        <div class="alert alert-light border rounded-3 p-3 text-center my-auto">
-                            <p class="text-muted mb-2 small">Ви ще не обрали жодної дисципліни</p>
-                            <a href="{{ route('platform.selsubjects') }}" class="btn btn-sm btn-primary rounded-pill px-3">
-                                Розпочати вибір
-                            </a>
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #fff9e6 0%, #fff0c2 100%); border-left: 5px solid #ff9800 !important;">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="d-flex align-items-start gap-4">
+                                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center text-warning flex-shrink-0" style="background: rgba(255, 152, 0, 0.18); width: 64px; height: 64px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                            <h4 class="fw-bold text-dark mb-0">
+                                                ⚠️ Спеціальність не обрана!
+                                            </h4>
+                                            <span class="badge bg-warning bg-opacity-25 text-dark border border-warning px-3 py-2 rounded-pill fw-semibold">
+                                                Доступно спеціальностей: {{ $userSpecialties->count() }}
+                                            </span>
+                                        </div>
+                                        <p class="text-secondary mb-3" style="font-size: 1.05rem; line-height: 1.6; max-width: 800px;">
+                                            У вашому профілі зареєстровано декілька спеціальностей. <strong>Без вибору активної спеціальності неможливо здійснювати вибір вибіркових дисциплін</strong>, оскільки дисципліни прив'язані до освітньої програми та лімітів вашої групи. Будь ласка, оберіть вашу активну спеціальність для продовження:
+                                        </p>
+
+                                        <div class="d-flex flex-wrap gap-2 pt-1">
+                                            @foreach($userSpecialties as $spec)
+                                                <button type="submit" 
+                                                        form="post-form" 
+                                                        formaction="{{ route('platform.main') }}/chooseSpecialty?id={{ $spec->id }}&text={{ urlencode($spec->specialty . ' (' . ($spec->group_name ?? 'Без групи') . ')') }}" 
+                                                        class="btn btn-warning shadow-sm fw-bold rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 text-dark">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917l-7.5-3.5Z"/>
+                                                    </svg>
+                                                    <span>Обрати: {{ $spec->specialty }} ({{ $spec->group_name ?? 'Без групи' }})</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
             </div>
-        </div>
+        @else
+            {{-- Student Profile & Choice Progress Cards --}}
+            <div class="row g-4 mb-4">
+                {{-- Student Info Card --}}
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: var(--bs-card-bg, #fff);">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-primary" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                </svg>
+                                Дані студента
+                            </h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-semibold">
+                                    {{ $studentSpecialty->group_name ?? 'Без групи' }}
+                                </span>
+                                @if($userSpecialties->count() > 1)
+                                    <a href="{{ route('platform.selsubjects') }}" class="badge bg-warning bg-opacity-15 text-dark text-decoration-none border border-warning px-2 py-1 rounded-pill fw-normal" title="Змінити спеціальність">
+                                        🔄 Змінити ({{ $userSpecialties->count() }})
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">ПІБ</small>
+                                <span class="fw-semibold text-dark">{{ $studentSpecialty->full_name ?? $user->name }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Номер картки / ЄДЕБО</small>
+                                <span class="fw-semibold text-dark">{{ $studentSpecialty->card_id ?? '—' }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Спеціальність</small>
+                                <span class="fw-semibold text-dark">{{ $studentSpecialty->specialty ?? '—' }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Факультет / Інститут</small>
+                                <span class="fw-semibold text-dark">{{ $studentSpecialty->department ?? '—' }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Освітня програма</small>
+                                <span class="fw-semibold text-dark">{{ $studentSpecialty->education_program ?? '—' }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <small class="text-muted d-block">Ступінь та форма</small>
+                                <span class="fw-semibold text-dark">{{ $studentSpecialty->degree ?? 'Бакалавр' }} / {{ $studentSpecialty->study_form ?? 'Денна' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Student Progress Card --}}
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: var(--bs-card-bg, #fff);">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-success" viewBox="0 0 16 16">
+                                    <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V.5z"/>
+                                    <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/>
+                                </svg>
+                                Стан вибору дисциплін
+                            </h5>
+                            @if($maxSubjectsLimit > 0 && $selectedSubjects->count() >= $maxSubjectsLimit)
+                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill fw-semibold">
+                                    ✓ Вибір виконано
+                                </span>
+                            @else
+                                <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-1 rounded-pill fw-semibold">
+                                    В процесі
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted fw-semibold">Обрано дисциплін:</span>
+                                <span class="fw-bold text-dark fs-5">
+                                    {{ $selectedSubjects->count() }} @if($maxSubjectsLimit > 0) <span class="text-muted fs-6">/ {{ $maxSubjectsLimit }}</span> @endif
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 12px; border-radius: 6px; background: rgba(0,0,0,0.06);">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated {{ $selectionProgressPercent >= 100 ? 'bg-success' : 'bg-primary' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ $selectionProgressPercent }}%;" 
+                                     aria-valuenow="{{ $selectionProgressPercent }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                        </div>
+
+                        @if($selectedSubjects->isNotEmpty())
+                            <div class="mb-0">
+                                <small class="text-muted fw-semibold d-block mb-2">Ваші обрані дисципліни:</small>
+                                <div class="d-flex flex-wrap gap-2" style="max-height: 120px; overflow-y: auto;">
+                                    @foreach($selectedSubjects as $subj)
+                                        <span class="badge bg-light text-dark border px-2 py-1 rounded-pill small" title="{{ $subj->name }}">
+                                            @if($subj->pivot->semester)
+                                                <span class="text-primary fw-bold">{{ $subj->pivot->semester }} сем:</span>
+                                            @endif
+                                            {{ Str::limit($subj->name, 35) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <div class="alert alert-light border rounded-3 p-3 text-center my-auto">
+                                <p class="text-muted mb-2 small">Ви ще не обрали жодної дисципліни</p>
+                                <a href="{{ route('platform.selsubjects') }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                    Розпочати вибір
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Student Step-by-Step Instructions & FAQ --}}
         <div class="row g-4">
@@ -548,32 +633,43 @@
                     </h5>
 
                     <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-3" style="background: rgba(255, 193, 7, 0.08); border-left: 4px solid #ffc107;">
+                            <span class="badge bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; min-width: 28px;">1</span>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Оберіть або перевірте вашу спеціальність</h6>
+                                <p class="text-muted small mb-0">
+                                    • <strong>Одна спеціальність:</strong> система обирає її автоматично при першому вході.<br>
+                                    • <strong>Декілька спеціальностей (паралельне навчання):</strong> оберіть потрібну спеціальність кнопкою на головній панелі або у меню вгорі праворуч. Без вибору спеціальності неможливо зафіксувати вибір дисциплін.
+                                </p>
+                            </div>
+                        </div>
+
                         <div class="d-flex align-items-start gap-3 p-3 rounded-3" style="background: rgba(13, 110, 253, 0.04); border-left: 4px solid #0d6efd;">
-                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; min-width: 28px;">1</span>
+                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; min-width: 28px;">2</span>
                             <div>
                                 <h6 class="fw-bold mb-1 text-dark">Перейдіть до каталогу вибіркових дисциплін</h6>
                                 <p class="text-muted small mb-0">
-                                    Натисніть кнопку «Перейти до вибору дисциплін». Перегляньте перелік доступних дисциплін для вашого ступеня та курсу, ознайомтесь з анотаціями та робочими програмами.
+                                    Натисніть кнопку «Перейти до вибору дисциплін». Перегляньте перелік доступних предметів за вашим освітнім ступенем. Ознайомтеся з назвами, анотаціями, кафедрами та робочими програмами (силабусами в PDF).
                                 </p>
                             </div>
                         </div>
 
                         <div class="d-flex align-items-start gap-3 p-3 rounded-3" style="background: rgba(25, 135, 84, 0.04); border-left: 4px solid #198754;">
-                            <span class="badge bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; min-width: 28px;">2</span>
+                            <span class="badge bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; min-width: 28px;">3</span>
                             <div>
                                 <h6 class="fw-bold mb-1 text-dark">Оберіть предмети на кожен семестр</h6>
                                 <p class="text-muted small mb-0">
-                                    Для кожної бажаної дисципліни натисніть відповідну кнопку семестру. Кількість обраних предметів у кожному семестрі повинна відповідати ліміту вашої академічної групи.
+                                    Для кожної бажаної дисципліни оберіть номер семестру (наприклад, «1 сем» чи «2 сем») у випадаючому списку колонки «Вибрано семестр». Кількість обраних предметів має відповідати ліміту вашої групи.
                                 </p>
                             </div>
                         </div>
 
                         <div class="d-flex align-items-start gap-3 p-3 rounded-3" style="background: rgba(111, 66, 193, 0.04); border-left: 4px solid #6f42c1;">
-                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center" style="background: #6f42c1 !important; width: 28px; height: 28px; min-width: 28px;">3</span>
+                            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center" style="background: #6f42c1 !important; width: 28px; height: 28px; min-width: 28px;">4</span>
                             <div>
-                                <h6 class="fw-bold mb-1 text-dark">Перевірте збереження результатів</h6>
+                                <h6 class="fw-bold mb-1 text-dark">Контролюйте ліміти та зберігайте результати</h6>
                                 <p class="text-muted small mb-0">
-                                    Обрані дисципліни миттєво зберігаються у вашому особистому кабінеті. Ви можете змінювати свій вибір, доки кампанія вибору відкрита деканатом.
+                                    У шапці таблиці слідкуйте за лічильниками (наприклад, <em>Семестр 1: 2/2</em>). Ваш вибір зберігається миттєво. Доки кампанія відкрита деканатом, ви можете змінювати свій вибір або скасовувати предмети (обравши «-»).
                                 </p>
                             </div>
                         </div>
@@ -593,6 +689,32 @@
 
                     <div class="accordion accordion-flush" id="studentFaqAccordion">
                         <div class="accordion-item border-0 mb-2 rounded-3" style="background: rgba(0,0,0,0.02);">
+                            <h2 class="accordion-header" id="faqHeadingZero">
+                                <button class="accordion-button collapsed fw-semibold text-dark bg-transparent py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseZero">
+                                    Чому показує «Оберіть спеціальність»?
+                                </button>
+                            </h2>
+                            <div id="faqCollapseZero" class="accordion-collapse collapse" data-bs-parent="#studentFaqAccordion">
+                                <div class="accordion-body text-muted small pt-0">
+                                    Якщо у вашому профілі є декілька спеціальностей і жодна ще не активована для поточної сесії, система не може визначити семестрові ліміти вашої групи. Оберіть вашу спеціальність у верхній панелі або через кнопку в жовтому блоці попередження.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border-0 mb-2 rounded-3" style="background: rgba(0,0,0,0.02);">
+                            <h2 class="accordion-header" id="faqHeadingMulti">
+                                <button class="accordion-button collapsed fw-semibold text-dark bg-transparent py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseMulti">
+                                    Як обрати предмети для двох спеціальностей?
+                                </button>
+                            </h2>
+                            <div id="faqCollapseMulti" class="accordion-collapse collapse" data-bs-parent="#studentFaqAccordion">
+                                <div class="accordion-body text-muted small pt-0">
+                                    Ви можете у будь-який момент перемикати активну спеціальність через меню у верхньому правому куті або на головній панелі. Оберіть першу спеціальність та предмети для неї, потім перемкніться на другу спеціальність та повторіть вибір для її навчального плану.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border-0 mb-2 rounded-3" style="background: rgba(0,0,0,0.02);">
                             <h2 class="accordion-header" id="faqHeadingOne">
                                 <button class="accordion-button collapsed fw-semibold text-dark bg-transparent py-3" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseOne">
                                     Чи можна змінити обрані дисципліни?
@@ -600,7 +722,7 @@
                             </h2>
                             <div id="faqCollapseOne" class="accordion-collapse collapse" data-bs-parent="#studentFaqAccordion">
                                 <div class="accordion-body text-muted small pt-0">
-                                    Так, поки кампанія вибору відкрита, ви можете скасувати попередній вибір або замінити дисципліну на іншу у межах встановлених лімітів.
+                                    Так, поки кампанія вибору відкрита деканатом, ви можете вільно скасувати попередній вибір (встановивши «-» у колонці семестру) або обрати іншу дисципліну в межах лімітів вашої групи.
                                 </div>
                             </div>
                         </div>
@@ -613,7 +735,9 @@
                             </h2>
                             <div id="faqCollapseTwo" class="accordion-collapse collapse" data-bs-parent="#studentFaqAccordion">
                                 <div class="accordion-body text-muted small pt-0">
-                                    Перевірте, чи не вичерпано ліміт вибору на цей семестр, та переконайтесь, що статус кампанії вибору відображається зеленим індикатором «ВІДКРИТО».
+                                    1. Перевірте, чи обрано активну спеціальність.<br>
+                                    2. Переконайтесь, що не вичерпано ліміт предметів на обраний семестр.<br>
+                                    3. Перевірте, чи кампанія вибору має статус «ВІДКРИТО».
                                 </div>
                             </div>
                         </div>
@@ -626,7 +750,7 @@
                             </h2>
                             <div id="faqCollapseThree" class="accordion-collapse collapse" data-bs-parent="#studentFaqAccordion">
                                 <div class="accordion-body text-muted small pt-0">
-                                    У розділі вибору дисциплін натисніть на посилання робочої програми біля назви предмета для перегляду PDF-файлу з описом курсу.
+                                    У таблиці вибору дисциплін натисніть на іконку PDF біля назви предмета або у колонці «Робоча програма» для завантаження чи перегляду силабусу.
                                 </div>
                             </div>
                         </div>

@@ -235,10 +235,10 @@ class AuthController extends Controller
 
     private function setCookieSpecialtyId()
     {
-        $specialty = Auth::user()->load('specialties')->specialties->first();
+        $specialties = Auth::user()->load('specialties')->specialties;
 
-        if ($specialty) {
-            Cookie::queue('user_specialty_id', $specialty->id, 1440);
+        if ($specialties->count() === 1) {
+            Cookie::queue('user_specialty_id', $specialties->first()->id, 1440);
         } else {
             Cookie::queue(Cookie::forget('user_specialty_id'));
         }
