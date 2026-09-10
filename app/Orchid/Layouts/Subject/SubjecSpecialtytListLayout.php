@@ -29,8 +29,22 @@ class SubjecSpecialtytListLayout extends Table
     {
         return [
             TD::make('№')
+                ->width('60px')
+                ->align(TD::ALIGN_CENTER)
                 ->render(function (Model $model, object $loop) {
                     return $loop->iteration; // повертає 1,2,3…
+                }),
+            TD::make('study_start', 'Рік вступу')
+                ->sort()
+                ->align(TD::ALIGN_CENTER)
+                ->filter(TD::FILTER_SELECT, UserSpecialty::getEntryYearsOptions())
+                ->render(function ($student) {
+                    $year = $student->entry_year ?? ($student->study_start ? substr((string)$student->study_start, 0, 4) : '—');
+                    if ($year === '—' || empty($year)) {
+                        return '<span class="text-muted">—</span>';
+                    }
+                    $badgeClass = ($year == '2026') ? 'bg-success' : 'bg-primary';
+                    return "<span class=\"badge {$badgeClass} bg-opacity-75 text-white fw-semibold px-2 py-1 rounded-pill\">{$year}</span>";
                 }),
             TD::make('full_name','ПІБ')
                 ->filter(TD::FILTER_TEXT)

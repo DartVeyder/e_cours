@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Orchid\Layouts\Student;
+namespace App\Orchid\Layouts\Subject;
 
 use App\Orchid\Filters\EntryYearFilter;
-use App\Orchid\Filters\SubjectSelectionFilter;
 use Orchid\Screen\Layouts\Selection;
 
-class StudentFiltersLayout extends Selection
+class SubjectSpecialtyFiltersLayout extends Selection
 {
     /**
      * @return string[]|iterable
@@ -15,7 +14,6 @@ class StudentFiltersLayout extends Selection
     {
         return [
             EntryYearFilter::class,
-            SubjectSelectionFilter::class,
         ];
     }
 }

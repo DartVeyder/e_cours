@@ -72,7 +72,7 @@ class GroupExcelExport
             }
         }
 
-        $colOffset = $showGroup ? 3 : 2;
+        $colOffset = $showGroup ? 4 : 3;
         $totalCols = count($colMap) + $colOffset; 
 
         // 5. Create spreadsheet
@@ -82,10 +82,11 @@ class GroupExcelExport
 
         // --- Header row ---
         $sheet->setCellValue([1, 1], '№');
-        $sheet->setCellValue([2, 1], 'ПІБ');
+        $sheet->setCellValue([2, 1], 'Рік вступу');
+        $sheet->setCellValue([3, 1], 'ПІБ');
         
         if ($showGroup) {
-            $sheet->setCellValue([3, 1], 'Група');
+            $sheet->setCellValue([4, 1], 'Група');
         }
 
         foreach ($colMap as $idx => $col) {
@@ -95,11 +96,14 @@ class GroupExcelExport
         // --- Data rows ---
         $rowIdx = 2;
         foreach ($students as $i => $student) {
+            $year = $student->entry_year ?? ($student->study_start ? substr((string)$student->study_start, 0, 4) : '');
+
             $sheet->setCellValue([1, $rowIdx], $i + 1);
-            $sheet->setCellValue([2, $rowIdx], $student->full_name);
+            $sheet->setCellValue([2, $rowIdx], $year);
+            $sheet->setCellValue([3, $rowIdx], $student->full_name);
             
             if ($showGroup) {
-                $sheet->setCellValue([3, $rowIdx], $student->group_name);
+                $sheet->setCellValue([4, $rowIdx], $student->group_name);
             }
 
             // Group disciplines by semester, sorted alphabetically
@@ -145,19 +149,20 @@ class GroupExcelExport
 
         // Freeze columns and header row
         if ($showGroup) {
+            $sheet->freezePane('E2');
+            $colStart = 5;
+        } else {
             $sheet->freezePane('D2');
             $colStart = 4;
-        } else {
-            $sheet->freezePane('C2');
-            $colStart = 3;
         }
 
         // Column widths
         $sheet->getColumnDimension('A')->setWidth(5);
-        $sheet->getColumnDimension('B')->setWidth(32);
+        $sheet->getColumnDimension('B')->setWidth(12);
+        $sheet->getColumnDimension('C')->setWidth(32);
         
         if ($showGroup) {
-            $sheet->getColumnDimension('C')->setWidth(15);
+            $sheet->getColumnDimension('D')->setWidth(15);
         }
 
         for ($c = $colStart; $c <= $totalCols; $c++) {

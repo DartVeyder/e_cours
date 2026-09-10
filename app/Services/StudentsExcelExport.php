@@ -23,6 +23,7 @@ class StudentsExcelExport
         $headers = [
             '№',
             'Кількість вибрано',
+            'Рік вступу',
             'ПІБ',
             'Група',
             'ЄДЕБО',
@@ -48,19 +49,22 @@ class StudentsExcelExport
                 $selectedStr .= " / {$totalRequired}";
             }
 
+            $year = $student->entry_year ?? ($student->study_start ? substr((string)$student->study_start, 0, 4) : '');
+
             $sheet->setCellValue('A' . $rowIdx, $i + 1);
             $sheet->setCellValue('B' . $rowIdx, $selectedStr);
-            $sheet->setCellValue('C' . $rowIdx, $student->full_name);
-            $sheet->setCellValue('D' . $rowIdx, $student->group_name);
-            $sheet->setCellValue('E' . $rowIdx, $student->card_id);
-            $sheet->setCellValue('F' . $rowIdx, $student->email);
-            $sheet->setCellValue('G' . $rowIdx, $student->study_form);
-            $sheet->setCellValue('H' . $rowIdx, $student->degree);
-            $sheet->setCellValue('I' . $rowIdx, $student->department);
-            $sheet->setCellValue('J' . $rowIdx, $student->specialty);
-            $sheet->setCellValue('K' . $rowIdx, $student->education_program);
-            $sheet->setCellValue('L' . $rowIdx, $student->gender);
-            $sheet->setCellValue('M' . $rowIdx, $student->study_status);
+            $sheet->setCellValue('C' . $rowIdx, $year);
+            $sheet->setCellValue('D' . $rowIdx, $student->full_name);
+            $sheet->setCellValue('E' . $rowIdx, $student->group_name);
+            $sheet->setCellValue('F' . $rowIdx, $student->card_id);
+            $sheet->setCellValue('G' . $rowIdx, $student->email);
+            $sheet->setCellValue('H' . $rowIdx, $student->study_form);
+            $sheet->setCellValue('I' . $rowIdx, $student->degree);
+            $sheet->setCellValue('J' . $rowIdx, $student->department);
+            $sheet->setCellValue('K' . $rowIdx, $student->specialty);
+            $sheet->setCellValue('L' . $rowIdx, $student->education_program);
+            $sheet->setCellValue('M' . $rowIdx, $student->gender);
+            $sheet->setCellValue('N' . $rowIdx, $student->study_status);
 
             $rowIdx++;
         }

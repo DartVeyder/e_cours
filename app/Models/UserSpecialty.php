@@ -29,25 +29,53 @@ class UserSpecialty extends Model
         'education_program',
         'gender',
         'study_form',
+        'study_start',
         'group_name',
         'email',
         'card_id',
         'subjects_count',
-
     ];
 
     protected $allowedFilters = [
         'full_name'            => Like::class,
-        'email'            => Like::class,
-        'card_id'            => Like::class,
-        'degree'            => Where::class,
-        'department'            => Where::class,
+        'email'                => Like::class,
+        'card_id'              => Like::class,
+        'study_start'          => \App\Orchid\Filters\Types\StudyStartYearFilter::class,
+        'degree'               => Where::class,
+        'department'           => Where::class,
         'specialty'            => Where::class,
-        'education_program'  => Where::class,
-        'gender'             => Where::class,
-        'study_form'         => Where::class,
-        'group_name'              => Where::class,
+        'education_program'    => Where::class,
+        'gender'               => Where::class,
+        'study_form'           => Where::class,
+        'group_name'           => Where::class,
     ];
+
+    public function getEntryYearAttribute(): ?string
+    {
+        if (empty($this->study_start)) {
+            return null;
+        }
+
+        return substr((string) $this->study_start, 0, 4);
+    }
+
+    public static function getEntryYearsOptions(): array
+    {
+        return static::whereNotNull('study_start')
+            ->pluck('study_start')
+            ->map(function ($date) {
+                return !empty($date) ? substr((string) $date, 0, 4) : null;
+            })
+            ->filter(function ($year) {
+                return !empty($year) && is_numeric($year) && (int) $year > 1900;
+            })
+            ->unique()
+            ->sortDesc()
+            ->mapWithKeys(function ($year) {
+                return [(string) $year => (string) $year];
+            })
+            ->toArray();
+    }
 
 
     public function user()

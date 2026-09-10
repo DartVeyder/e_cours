@@ -29,7 +29,7 @@ class StudentListScreen extends Screen
         $user = Auth::user()->load(['department', 'degree', 'roles']);
 
         $specialtiesQuery = UserSpecialty::filters()
-            ->filtersApply([\App\Orchid\Filters\SubjectSelectionFilter::class])
+            ->filtersApply([\App\Orchid\Filters\EntryYearFilter::class, \App\Orchid\Filters\SubjectSelectionFilter::class])
             ->with(['group.semesterLimits'])
             ->withCount('subjects');
 
@@ -80,6 +80,9 @@ class StudentListScreen extends Screen
         }
         if (request()->has('sort')) {
             $exportParams['sort'] = request()->get('sort');
+        }
+        if (request()->has('entry_year')) {
+            $exportParams['entry_year'] = request()->get('entry_year');
         }
         if (request()->has('subject_selection')) {
             $exportParams['subject_selection'] = request()->get('subject_selection');
@@ -277,7 +280,7 @@ class StudentListScreen extends Screen
         $user = Auth::user()->load(['department', 'degree', 'roles']);
 
         $specialtiesQuery = UserSpecialty::filters()
-            ->filtersApply([\App\Orchid\Filters\SubjectSelectionFilter::class])
+            ->filtersApply([\App\Orchid\Filters\EntryYearFilter::class, \App\Orchid\Filters\SubjectSelectionFilter::class])
             ->with(['group.semesterLimits'])
             ->withCount('subjects');
 
