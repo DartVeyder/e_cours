@@ -77,9 +77,9 @@ class SubjectListLayout extends Table
                         . "<a href=\"{$allUrl}\" class=\"fw-bold text-dark text-decoration-underline\" title=\"{$totalTitle}\">{$total}</a>"
                         . "</div>";
 
-                    return "<div class=\"py-1\" style=\"min-width: 110px;\">"
+                    return "<div class=\"py-1\" style=\"min-width: 90px;\">"
                         . $totalHtml
-                        . "<div class=\"d-flex flex-wrap gap-1\">"
+                        . "<div class=\"d-flex flex-column align-items-start gap-1\">"
                         . $badgesHtml
                         . "</div>"
                         . "</div>";
