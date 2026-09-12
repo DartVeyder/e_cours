@@ -64,6 +64,12 @@ class EntryYearFilter extends Filter
         $value = $this->getFilterValue();
 
         if (!empty($value)) {
+            if ($builder->getModel() instanceof \App\Models\Subject) {
+                return $builder->whereHas('userSpecialties', function (Builder $query) use ($value) {
+                    $query->where('study_start', 'like', $value . '%');
+                });
+            }
+
             return $builder->where('user_specialties.study_start', 'like', $value . '%');
         }
 

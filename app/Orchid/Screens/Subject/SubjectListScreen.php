@@ -3,10 +3,13 @@
 namespace App\Orchid\Screens\Subject;
 
 use App\Models\Subject;
+use App\Orchid\Filters\EntryYearFilter;
+use App\Orchid\Layouts\Subject\SubjectFiltersLayout;
 use App\Orchid\Layouts\Subject\SubjectListLayout;
 use App\Services\GoogleSheet\ReportSubjectsStudentsSheet;
 use App\Services\GoogleSheet\SelsubjectSheet;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
@@ -24,15 +27,54 @@ class SubjectListScreen extends Screen
     {
         $user = Auth::user()->load(['department','degree', 'roles']);
 
-        $subjectsQuery = Subject::filters()->withCount('users');
+        $entryYear = request()->get('entry_year') ?? request()->input('filter.study_start');
+        if (is_array($entryYear)) {
+            $entryYear = reset($entryYear);
+        }
+
+        $subjectsQuery = Subject::filters()
+            ->filtersApply([EntryYearFilter::class]);
+
+        if (!empty($entryYear)) {
+            $subjectsQuery->withCount([
+                'userSpecialties as users_count' => function ($q) use ($entryYear) {
+                    $q->where('study_start', 'like', $entryYear . '%');
+                },
+                'userSpecialties as total_users_count',
+            ]);
+        } else {
+            $subjectsQuery->withCount('userSpecialties as users_count');
+        }
 
         if ($user && $user->degree){
             $subjectsQuery->where('education_level', $user->degree->name);
         }
 
-        return [
-            'subjects' =>  $subjectsQuery->paginate()
+        $subjects = $subjectsQuery->paginate();
 
+        $subjectIds = $subjects->getCollection()->pluck('id')->filter()->all();
+
+        if (!empty($subjectIds)) {
+            $countsByYear = DB::table('user_specialty_subjects')
+                ->join('user_specialties', 'user_specialty_subjects.user_specialty_id', '=', 'user_specialties.id')
+                ->whereIn('user_specialty_subjects.subject_id', $subjectIds)
+                ->whereNull('user_specialties.deleted_at')
+                ->selectRaw("user_specialty_subjects.subject_id, SUBSTR(user_specialties.study_start, 1, 4) as entry_year, count(*) as count")
+                ->groupBy('user_specialty_subjects.subject_id', 'entry_year')
+                ->orderByDesc('entry_year')
+                ->get()
+                ->groupBy('subject_id');
+
+            $subjects->getCollection()->transform(function ($subject) use ($countsByYear) {
+                $subject->year_counts = $countsByYear->get($subject->id, collect())
+                    ->mapWithKeys(fn($row) => [($row->entry_year ?: '—') => (int)$row->count])
+                    ->toArray();
+                return $subject;
+            });
+        }
+
+        return [
+            'subjects' => $subjects,
         ];
     }
 
@@ -75,6 +117,7 @@ class SubjectListScreen extends Screen
     public function layout(): iterable
     {
         return [
+            SubjectFiltersLayout::class,
             SubjectListLayout::class,
         ];
     }

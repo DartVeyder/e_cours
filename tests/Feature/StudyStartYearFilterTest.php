@@ -333,4 +333,156 @@ class StudyStartYearFilterTest extends TestCase
         $this->assertEquals(200, $groupExport->getStatusCode());
         $this->assertStringContainsString('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', $groupExport->headers->get('Content-Type'));
     }
+
+    public function test_subject_list_screen_displays_total_and_entry_year_badges(): void
+    {
+        $admin = User::factory()->create([
+            'permissions' => ['platform.index' => true],
+        ]);
+
+        $subjectWithStudents = Subject::create([
+            'name' => 'Розподілені системи',
+            'active' => 1,
+        ]);
+
+        $subjectEmpty = Subject::create([
+            'name' => 'Порожня дисципліна',
+            'active' => 1,
+        ]);
+
+        $spec2025 = UserSpecialty::create([
+            'user_id' => $admin->id,
+            'email' => 'sub_s2025@dspu.edu.ua',
+            'card_id' => 'CARD-SUB-25',
+            'full_name' => 'Студент Розподіл 2025',
+            'group_name' => 'ІПЗ-25',
+            'study_start' => '2025-09-01',
+            'specialty' => '121 ІПЗ',
+        ]);
+
+        $spec2026_1 = UserSpecialty::create([
+            'user_id' => $admin->id,
+            'email' => 'sub_s2026_1@dspu.edu.ua',
+            'card_id' => 'CARD-SUB-26-1',
+            'full_name' => 'Студент Розподіл 2026 Перший',
+            'group_name' => 'ІПЗ-26',
+            'study_start' => '2026-09-01',
+            'specialty' => '121 ІПЗ',
+        ]);
+
+        $spec2026_2 = UserSpecialty::create([
+            'user_id' => $admin->id,
+            'email' => 'sub_s2026_2@dspu.edu.ua',
+            'card_id' => 'CARD-SUB-26-2',
+            'full_name' => 'Студент Розподіл 2026 Другий',
+            'group_name' => 'ІПЗ-26',
+            'study_start' => '2026-09-01',
+            'specialty' => '121 ІПЗ',
+        ]);
+
+        UserSpecialtySubject::create([
+            'user_id' => $admin->id,
+            'user_specialty_id' => $spec2025->id,
+            'subject_id' => $subjectWithStudents->id,
+            'semester' => 1,
+            'is_student_choice' => 1,
+        ]);
+
+        UserSpecialtySubject::create([
+            'user_id' => $admin->id,
+            'user_specialty_id' => $spec2026_1->id,
+            'subject_id' => $subjectWithStudents->id,
+            'semester' => 1,
+            'is_student_choice' => 1,
+        ]);
+
+        UserSpecialtySubject::create([
+            'user_id' => $admin->id,
+            'user_specialty_id' => $spec2026_2->id,
+            'subject_id' => $subjectWithStudents->id,
+            'semester' => 2,
+            'is_student_choice' => 1,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('platform.subjects'));
+
+        $response->assertOk();
+        $response->assertSee('Кількість вибрало');
+        $response->assertSee('Розподілені системи');
+        $response->assertSee('Всього:');
+        $response->assertSee('2026: 2');
+        $response->assertSee('2025: 1');
+        $response->assertSee('entry_year=2026');
+        $response->assertSee('entry_year=2025');
+        $response->assertSee('Порожня дисципліна');
+    }
+
+    public function test_subject_list_screen_filters_by_entry_year(): void
+    {
+        $admin = User::factory()->create([
+            'permissions' => ['platform.index' => true],
+        ]);
+
+        $subject2025Only = Subject::create([
+            'name' => 'Курс тільки для 2025',
+            'active' => 1,
+        ]);
+
+        $subject2026Only = Subject::create([
+            'name' => 'Курс тільки для 2026',
+            'active' => 1,
+        ]);
+
+        $spec2025 = UserSpecialty::create([
+            'user_id' => $admin->id,
+            'email' => 'filter_2025@dspu.edu.ua',
+            'card_id' => 'CARD-FLT-25',
+            'full_name' => 'Студент 2025 Фільтр',
+            'study_start' => '2025-09-01',
+            'specialty' => '121 ІПЗ',
+        ]);
+
+        $spec2026 = UserSpecialty::create([
+            'user_id' => $admin->id,
+            'email' => 'filter_2026@dspu.edu.ua',
+            'card_id' => 'CARD-FLT-26',
+            'full_name' => 'Студент 2026 Фільтр',
+            'study_start' => '2026-09-01',
+            'specialty' => '121 ІПЗ',
+        ]);
+
+        UserSpecialtySubject::create([
+            'user_id' => $admin->id,
+            'user_specialty_id' => $spec2025->id,
+            'subject_id' => $subject2025Only->id,
+            'semester' => 1,
+            'is_student_choice' => 1,
+        ]);
+
+        UserSpecialtySubject::create([
+            'user_id' => $admin->id,
+            'user_specialty_id' => $spec2026->id,
+            'subject_id' => $subject2026Only->id,
+            'semester' => 1,
+            'is_student_choice' => 1,
+        ]);
+
+        // Filter by 2026
+        $response2026 = $this->actingAs($admin)->get(route('platform.subjects', [
+            'entry_year' => '2026',
+        ]));
+
+        $response2026->assertOk();
+        $response2026->assertSee('Курс тільки для 2026');
+        $response2026->assertDontSee('Курс тільки для 2025');
+
+        // Filter by 2025
+        $response2025 = $this->actingAs($admin)->get(route('platform.subjects', [
+            'entry_year' => '2025',
+        ]));
+
+        $response2025->assertOk();
+        $response2025->assertSee('Курс тільки для 2025');
+        $response2025->assertDontSee('Курс тільки для 2026');
+    }
 }
