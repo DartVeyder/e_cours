@@ -77,7 +77,12 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make(__('Roles'))
                 ->icon('bs.shield')
                 ->route('platform.systems.roles')
+                ->permission('platform.systems.roles'),
+
+            Menu::make('Чорний список IP')
+                ->icon('bs.shield-slash')
                 ->permission('platform.systems.roles')
+                ->route('platform.systems.ip-blacklist')
                 ->divider(),
 //
         ];

@@ -67,6 +67,13 @@ Route::screen('changelog', \App\Orchid\Screens\System\ChangelogScreen::class)
         ->parent('platform.index')
         ->push(__('Журнал змін'), route('platform.changelog')));
 
+// Platform > Security > IP Blacklist
+Route::screen('security/ip-blacklist', \App\Orchid\Screens\Security\IpBlacklistScreen::class)
+    ->name('platform.systems.ip-blacklist')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Чорний список IP'), route('platform.systems.ip-blacklist')));
+
 // Platform > Students
 Route::screen('students', StudentListScreen::class)
     ->name('platform.students')
