@@ -69,11 +69,24 @@ class StudyStartYearFilterTest extends TestCase
         $this->assertEquals('2025', $spec->entry_year);
     }
 
+    private function createAdminUser(): User
+    {
+        return User::factory()->create([
+            'permissions' => [
+                'platform.index' => true,
+                'platform.systems.roles' => true,
+                'platform.systems.students' => true,
+                'platform.systems.subjects' => true,
+                'platform.systems.groups' => true,
+                'platform.systems.logs' => true,
+                'platform.systems.users' => true,
+            ],
+        ]);
+    }
+
     public function test_subject_specialty_list_screen_displays_entry_year_column_and_badges(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         $subject = Subject::create([
             'name' => 'Штучний інтелект',
@@ -131,9 +144,7 @@ class StudyStartYearFilterTest extends TestCase
 
     public function test_subject_specialty_list_screen_filters_by_entry_year(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         $subject = Subject::create([
             'name' => 'Кібербезпека',
@@ -201,9 +212,7 @@ class StudyStartYearFilterTest extends TestCase
 
     public function test_student_list_screen_displays_entry_year(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         UserSpecialty::create([
             'user_id' => $admin->id,
@@ -225,9 +234,7 @@ class StudyStartYearFilterTest extends TestCase
 
     public function test_student_list_screen_filters_by_column_and_top_filter(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         UserSpecialty::create([
             'user_id' => $admin->id,
@@ -268,9 +275,7 @@ class StudyStartYearFilterTest extends TestCase
 
     public function test_students_group_screen_displays_entry_year(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         $group = Group::create(['name' => 'ІПЗ-21']);
 
@@ -336,9 +341,7 @@ class StudyStartYearFilterTest extends TestCase
 
     public function test_subject_list_screen_displays_total_and_entry_year_badges(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         $subjectWithStudents = Subject::create([
             'name' => 'Розподілені системи',
@@ -419,9 +422,7 @@ class StudyStartYearFilterTest extends TestCase
 
     public function test_subject_list_screen_filters_by_entry_year(): void
     {
-        $admin = User::factory()->create([
-            'permissions' => ['platform.index' => true],
-        ]);
+        $admin = $this->createAdminUser();
 
         $subject2025Only = Subject::create([
             'name' => 'Курс тільки для 2025',

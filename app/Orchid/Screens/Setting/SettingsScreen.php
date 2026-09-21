@@ -41,6 +41,13 @@ class SettingsScreen extends Screen
         return 'Загальні параметри доступу та конфігурація платформи (v' . config('app.version', '1.4.0') . ')';
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.roles',
+        ];
+    }
+
     /**
      * The screen's action buttons.
      *

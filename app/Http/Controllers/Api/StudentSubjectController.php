@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class StudentSubjectController extends Controller
@@ -13,6 +14,14 @@ class StudentSubjectController extends Controller
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        if (!$user || (!$user->hasAccess('platform.systems.students') && !$user->roles->contains('slug', 'administrator') && !$user->roles->contains('slug', 'dekanat'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Доступ заборонено. Необхідні права адміністратора або співробітника деканату.',
+            ], 403);
+        }
+
         $query = DB::table('user_specialties')
             ->leftJoin('user_specialty_subjects', 'user_specialties.id', '=', 'user_specialty_subjects.user_specialty_id')
             ->leftJoin('subjects', 'subjects.id', '=', 'user_specialty_subjects.subject_id')

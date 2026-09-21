@@ -15,9 +15,16 @@ class ActivityLogScreen extends Screen
         return 'Журнал подій';
     }
 
-    public function  description(): ?string
+    public function description(): ?string
     {
         return 'Журнал подій через Spatie Activitylog';
+    }
+
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.logs',
+        ];
     }
     public function query(): array
     {

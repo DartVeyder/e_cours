@@ -59,6 +59,13 @@ class StudentListScreen extends Screen
         return 'Студенти';
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.students',
+        ];
+    }
+
     /**
      * The screen's action buttons.
      *

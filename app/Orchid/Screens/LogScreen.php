@@ -18,9 +18,16 @@ class LogScreen extends Screen
         return 'Логи';
     }
 
-    public function  description(): ?string
+    public function description(): ?string
     {
         return 'Перегляд логів з файлу storage/logs/laravel.log';
+    }
+
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.logs',
+        ];
     }
     public function query(): array
     {

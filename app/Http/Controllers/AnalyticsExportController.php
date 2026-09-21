@@ -20,6 +20,17 @@ class AnalyticsExportController extends Controller
             $user->loadMissing(['department', 'roles']);
         }
 
+        $canExport = $user && (
+            $user->hasAccess('platform.systems.students') ||
+            $user->roles->contains('slug', 'administrator') ||
+            $user->roles->contains('slug', 'admin') ||
+            $user->roles->contains('slug', 'dekanat')
+        );
+
+        if (!$canExport) {
+            abort(403, 'Доступ до експорту аналітики заборонено.');
+        }
+
         $filters = [
             'entry_year' => $request->get('entry_year', '2026'),
             'degree'     => $request->get('degree', 'Магістр'),

@@ -64,6 +64,13 @@ class GoogleSheetsSettingsScreen extends Screen
         return "Керування таблицями студентів і дисциплін, назвами аркушів та режимами синхронізації. Поточний статус: {$mode}";
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.roles',
+        ];
+    }
+
     /**
      * The screen's action buttons.
      *

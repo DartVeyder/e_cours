@@ -14,8 +14,26 @@ class GroupEditScreen extends Screen
 {
     public $group;
 
+    protected function checkDepartmentAccess(Group $group): void
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $user->loadMissing(['department', 'roles']);
+
+        if ($user->roles->contains('slug', 'dekanat') && $user->department_id) {
+            if ($group->exists && $group->department_id && $group->department_id !== $user->department_id) {
+                abort(403, 'У вас немає прав на редагування групи іншого факультету/підрозділу.');
+            }
+        }
+    }
+
     public function query(Group $group): iterable
     {
+        $this->checkDepartmentAccess($group);
+
         $group->load('semesterLimits');
         $this->group = $group; // зберігаємо для name()
         return [
@@ -26,6 +44,13 @@ class GroupEditScreen extends Screen
     public function name(): ?string
     {
         return $this->group ? 'Група ' . $this->group->name : 'Нова група';
+    }
+
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.groups',
+        ];
     }
 
     public function commandBar(): iterable
@@ -69,6 +94,8 @@ class GroupEditScreen extends Screen
 
     public function save(Request $request, Group $group)
     {
+        $this->checkDepartmentAccess($group);
+
         // Зберігаємо дані групи
         $group->fill($request->get('group'))->save();
 

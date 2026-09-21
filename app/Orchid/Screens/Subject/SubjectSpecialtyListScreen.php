@@ -43,6 +43,13 @@ class SubjectSpecialtyListScreen extends Screen
         return "Всього вибрало: ". $this->countSpecialties;
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.subjects',
+        ];
+    }
+
     /**
      * The screen's action buttons.
      *

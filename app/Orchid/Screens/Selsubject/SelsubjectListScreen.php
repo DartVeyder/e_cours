@@ -18,6 +18,22 @@ use Orchid\Support\Facades\Toast;
 
 class SelsubjectListScreen extends Screen
 {
+    public function isStaffUser(?\App\Models\User $user = null): bool
+    {
+        $user = $user ?? Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        return $user->hasAccess('platform.systems.roles') ||
+            $user->hasAccess('platform.systems.students') ||
+            $user->hasAccess('platform.systems.subjects') ||
+            $user->hasAccess('dekanat') ||
+            $user->roles->contains('slug', 'administrator') ||
+            $user->roles->contains('slug', 'admin') ||
+            $user->roles->contains('slug', 'dekanat');
+    }
+
     /**
      * Resolve active specialty ID from cookie or auto-select if user has only 1 specialty.
      *
@@ -27,20 +43,29 @@ class SelsubjectListScreen extends Screen
     {
         $specialtyId = request()->cookie('user_specialty_id');
         $user = Auth::user();
-
-        if ($specialtyId && UserSpecialty::where('id', $specialtyId)->exists()) {
-            return (int) $specialtyId;
+        if (!$user) {
+            return null;
         }
 
-        if ($user) {
-            $user->loadMissing('specialties');
-            $specialties = $user->specialties;
+        $isStaff = $this->isStaffUser($user);
 
-            if ($specialties->count() === 1) {
-                $autoId = (int) $specialties->first()->id;
-                Cookie::queue('user_specialty_id', $autoId, 1440);
-                return $autoId;
+        if ($specialtyId) {
+            $query = UserSpecialty::where('id', $specialtyId);
+            if (!$isStaff) {
+                $query->where('user_id', $user->id);
             }
+            if ($query->exists()) {
+                return (int) $specialtyId;
+            }
+        }
+
+        $user->loadMissing('specialties');
+        $specialties = $user->specialties;
+
+        if ($specialties->count() === 1) {
+            $autoId = (int) $specialties->first()->id;
+            Cookie::queue('user_specialty_id', $autoId, 1440);
+            return $autoId;
         }
 
         return null;
@@ -282,6 +307,12 @@ class SelsubjectListScreen extends Screen
         }
 
         $userId = Auth::id();
+        $isStaff = $this->isStaffUser($user);
+
+        if (!$isStaff && (int) $userSpecialty->user_id !== (int) $userId) {
+            Toast::error('Помилка доступу: ви не можете змінювати дисципліни іншого здобувача освіти.');
+            return;
+        }
 
         $userSpecialtySubject = UserSpecialtySubject::where([
             'user_specialty_id' => $userSpecialtyId,
@@ -349,10 +380,23 @@ class SelsubjectListScreen extends Screen
     {
         $id = $id ?? request('id');
         $text = $text ?? request('text');
+        $user = Auth::user();
 
-        if ($id) {
+        if ($id && $user) {
+            $isStaff = $this->isStaffUser($user);
+            $specialtyQuery = UserSpecialty::where('id', $id);
+            if (!$isStaff) {
+                $specialtyQuery->where('user_id', $user->id);
+            }
+
+            if (!$specialtyQuery->exists()) {
+                Toast::error('Доступ до обраної спеціальності заборонено.');
+                return;
+            }
+
             Cookie::queue('user_specialty_id', $id, 1440);
         }
+
         Toast::info("Вибрано: " . $text);
 
         // Логування вибору спеціальності

@@ -43,6 +43,13 @@ class GroupListScreen extends Screen
         return 'Групи';
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.groups',
+        ];
+    }
+
     public function commandBar(): iterable
     {
         return [

@@ -19,6 +19,15 @@ class UserSpecialty extends Model
 
     protected $guarded = [];
 
+    protected $hidden = [
+        'rnokpp',
+        'valid_rnokpp',
+        'document_series',
+        'document_number',
+        'birth_date',
+        'citizenship',
+    ];
+
     protected $casts = ['deleted_at' => 'datetime'];
 
     protected $allowedSorts = [

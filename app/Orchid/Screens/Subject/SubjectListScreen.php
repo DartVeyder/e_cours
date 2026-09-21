@@ -88,6 +88,13 @@ class SubjectListScreen extends Screen
         return 'Список предметів';
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.subjects',
+        ];
+    }
+
     /**
      * The screen's action buttons.
      *

@@ -83,6 +83,13 @@ class StudentsGroupScreen extends Screen
         return "Група {$this->group}";
     }
 
+    public function permission(): ?iterable
+    {
+        return [
+            'platform.systems.students',
+        ];
+    }
+
     /**
      * The screen's action buttons.
      *
