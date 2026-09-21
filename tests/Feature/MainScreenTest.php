@@ -107,4 +107,18 @@ class MainScreenTest extends TestCase
         $response->assertOk();
         $response->assertSee('v' . config('app.version', '1.4.0'));
     }
+
+    public function test_footer_displays_developer_info_and_telegram_link(): void
+    {
+        $user = User::factory()->create([
+            'permissions' => ['platform.index' => true],
+        ]);
+
+        $response = $this->actingAs($user)->get(route('platform.main'));
+
+        $response->assertOk();
+        $response->assertSee(config('app.developer'));
+        $response->assertSee('Telegram');
+        $response->assertSee(config('app.telegram_url'));
+    }
 }

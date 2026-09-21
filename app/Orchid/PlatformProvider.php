@@ -39,6 +39,10 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Предмети')
                 ->permission('platform.systems.subjects')
                 ->route('platform.subjects'),
+            Menu::make('Аналітика вибору')
+                ->icon('bs.graph-up-arrow')
+                ->permission('platform.systems.students')
+                ->route('platform.analytics'),
             Menu::make('Студенти')
                 ->permission('platform.systems.students')
                 ->route('platform.students'),

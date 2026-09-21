@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Orchid\Screens\ActivityLogScreen;
+use App\Orchid\Screens\Analytics\AnalyticsScreen;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
 use App\Orchid\Screens\Examples\ExampleChartsScreen;
@@ -60,6 +61,13 @@ Route::screen('settings/google-sheets', \App\Orchid\Screens\Setting\GoogleSheets
 
 Route::screen('logs', LogScreen::class)->name('platform.logs');
 Route::screen('activity/logs', ActivityLogScreen::class)->name('platform.activity.logs');
+
+// Platform > Analytics
+Route::screen('analytics', AnalyticsScreen::class)
+    ->name('platform.analytics')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Аналітика вибору'), route('platform.analytics')));
 
 // Platform > Students
 Route::screen('students', StudentListScreen::class)

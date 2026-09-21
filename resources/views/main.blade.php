@@ -61,6 +61,13 @@
                                         Дисципліни
                                     </a>
 
+                                    <a href="{{ route('platform.analytics') }}" class="btn btn-outline-info px-4 py-2 rounded-pill fw-semibold d-inline-flex align-items-center gap-2 text-white border-info">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.707l-4.146 4.147a.5.5 0 0 1-.708 0L7 6.707l-3.646 3.647a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708 0L9 7.293l3.646-3.647H10.5a.5.5 0 0 1-.5-.5Z"/>
+                                        </svg>
+                                        Аналітика вибору
+                                    </a>
+
                                     @if($isAdmin)
                                         <a href="{{ route('platform.settings') }}" class="btn btn-outline-warning px-4 py-2 rounded-pill fw-semibold d-inline-flex align-items-center gap-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
@@ -185,6 +192,20 @@
                                 <div>
                                     <h6 class="mb-0 fw-bold text-dark">Студенти</h6>
                                     <small class="text-muted">Імпорт, вибір, списки</small>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <a href="{{ route('platform.analytics') }}" class="d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none border bg-light h-100">
+                                <div class="rounded-3 p-2 bg-info bg-opacity-10 text-info">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.707l-4.146 4.147a.5.5 0 0 1-.708 0L7 6.707l-3.646 3.647a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708 0L9 7.293l3.646-3.647H10.5a.5.5 0 0 1-.5-.5Z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-dark">Аналітика вибору</h6>
+                                    <small class="text-muted">Магістри 2026, розбивка</small>
                                 </div>
                             </a>
                         </div>

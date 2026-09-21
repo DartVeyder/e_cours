@@ -11,6 +11,10 @@ Route::get('/export/group/{group}/excel', [GroupExportController::class, 'export
     ->middleware('auth')
     ->name('export.group.excel');
 
+Route::get('/export/analytics/excel', [\App\Http\Controllers\AnalyticsExportController::class, 'export'])
+    ->middleware('auth')
+    ->name('export.analytics.excel');
+
 // API endpoint for retrieving students list along with chosen subjects
 Route::get('/api/students-subjects', [\App\Http\Controllers\Api\StudentSubjectController::class, 'index']);
 
