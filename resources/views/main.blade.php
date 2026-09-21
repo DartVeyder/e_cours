@@ -34,9 +34,9 @@
                                         </span>
                                     @endif
 
-                                    <span class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-25 px-3 py-2 rounded-pill fw-semibold">
-                                        v{{ config('app.version', '1.4.0') }}
-                                    </span>
+                                    <a href="{{ route('platform.changelog') }}" class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-25 px-3 py-2 rounded-pill fw-semibold text-decoration-none" title="Переглянути журнал змін (Changelog)" style="transition: all 0.2s ease;">
+                                        v{{ config('app.version', '1.5.0') }}
+                                    </a>
                                 </div>
 
                                 <h1 class="h2 fw-bold text-white mb-2">
@@ -415,9 +415,9 @@
                                         </span>
                                     @endif
 
-                                    <span class="badge bg-white bg-opacity-15 text-white border border-white border-opacity-25 px-3 py-2 rounded-pill fw-semibold">
-                                        v{{ config('app.version', '1.4.0') }}
-                                    </span>
+                                    <a href="{{ route('platform.changelog') }}" class="badge bg-white bg-opacity-15 text-white border border-white border-opacity-25 px-3 py-2 rounded-pill fw-semibold text-decoration-none" title="Переглянути журнал змін (Changelog)" style="transition: all 0.2s ease;">
+                                        v{{ config('app.version', '1.5.0') }}
+                                    </a>
                                 </div>
 
                                 <h1 class="h2 fw-bold text-white mb-2">

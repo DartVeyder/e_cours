@@ -69,6 +69,13 @@ Route::screen('analytics', AnalyticsScreen::class)
         ->parent('platform.index')
         ->push(__('Аналітика вибору'), route('platform.analytics')));
 
+// Platform > Changelog
+Route::screen('changelog', \App\Orchid\Screens\System\ChangelogScreen::class)
+    ->name('platform.changelog')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Журнал змін'), route('platform.changelog')));
+
 // Platform > Students
 Route::screen('students', StudentListScreen::class)
     ->name('platform.students')

@@ -6,9 +6,9 @@
                 <span>© {{ date('Y') }} <strong>{{ config('app.name', 'E-Cours') }}</strong> — ДДПУ ім. Івана Франка</span>
             </div>
             <div class="d-inline-flex align-items-center flex-wrap gap-2 mt-1">
-                <span class="badge bg-light text-secondary border px-2 py-0.5 rounded-pill">
-                    v{{ config('app.version', '1.4.0') }}
-                </span>
+                <a href="{{ route('platform.changelog') }}" class="badge bg-light text-secondary border px-2 py-0.5 rounded-pill text-decoration-none" title="Переглянути журнал змін (Changelog)" style="transition: all 0.2s ease;" onmouseover="this.classList.add('bg-primary', 'text-white')" onmouseout="this.classList.remove('bg-primary', 'text-white')">
+                    v{{ config('app.version', '1.5.0') }}
+                </a>
                 <span class="text-muted">•</span>
                 <span class="text-muted">Електронний вибір дисциплін</span>
             </div>
