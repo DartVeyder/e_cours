@@ -533,10 +533,22 @@
                                 </svg>
                                 Дані студента
                             </h5>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-semibold">
                                     {{ $studentSpecialty->group_name ?? 'Без групи' }}
                                 </span>
+                                @if(!empty($studentSpecialty->group_name) || !empty($studentSpecialty->group_id))
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1 shadow-sm"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#classmatesModal"
+                                            title="Переглянути список одногрупників">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                                        </svg>
+                                        <span>Одногрупники ({{ isset($classmates) ? $classmates->count() : 0 }})</span>
+                                    </button>
+                                @endif
                                 @if($userSpecialties->count() > 1)
                                     <a href="{{ route('platform.selsubjects') }}" class="badge bg-warning bg-opacity-15 text-dark text-decoration-none border border-warning px-2 py-1 rounded-pill fw-normal" title="Змінити спеціальність">
                                         🔄 Змінити ({{ $userSpecialties->count() }})
@@ -779,5 +791,185 @@
                 </div>
             </div>
         </div>
+
+        {{-- Classmates Modal for Student --}}
+        @if($studentSpecialty && (!empty($studentSpecialty->group_name) || !empty($studentSpecialty->group_id)))
+            <div class="modal fade" id="classmatesModal" tabindex="-1" aria-labelledby="classmatesModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                        <div class="modal-header border-0 bg-primary text-white p-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center text-white" style="width: 46px; height: 46px; font-size: 20px;">
+                                    👥
+                                </div>
+                                <div>
+                                    <h5 class="modal-title fw-bold text-white mb-0" id="classmatesModalLabel">
+                                        Академічна група: {{ $studentSpecialty->group_name ?? 'Ваша група' }}
+                                    </h5>
+                                    <small class="text-white-50">
+                                        {{ $studentSpecialty->specialty }} @if($studentSpecialty->department) • {{ $studentSpecialty->department }} @endif
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-white text-primary rounded-pill px-3 py-2 fw-semibold">
+                                    {{ isset($classmates) ? $classmates->count() : 0 }} студентів
+                                </span>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                        </div>
+
+                        <div class="modal-body p-4 bg-light">
+                            @if(isset($classmates) && $classmates->isNotEmpty())
+                                {{-- Search input --}}
+                                <div class="mb-3 position-relative">
+                                    <input type="text" 
+                                           id="classmatesQuickSearch" 
+                                           class="form-control rounded-pill ps-4 py-2 border-0 shadow-sm" 
+                                           placeholder="🔍 Швидкий пошук одногрупника за ПІБ..."
+                                           oninput="filterClassmates(this.value)">
+                                </div>
+
+                                <div class="table-responsive bg-white rounded-3 shadow-sm border p-2">
+                                    <table class="table table-hover align-middle mb-0" id="classmatesTable">
+                                        <thead class="table-light">
+                                            <tr class="small text-muted text-uppercase">
+                                                <th class="text-center" style="width: 50px;">№</th>
+                                                <th>Студент</th>
+                                                <th>Освітня програма</th>
+                                                <th>Email</th>
+                                                <th class="text-center" style="width: 150px;">Вибіркові дисципліни</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($classmates as $idx => $classmate)
+                                                @php
+                                                    $isCurrentStudent = ($classmate->id === $studentSpecialty->id);
+                                                @endphp
+                                                <tr class="classmate-row {{ $isCurrentStudent ? 'table-primary bg-opacity-25' : '' }}">
+                                                    <td class="text-center text-muted fw-semibold">{{ $idx + 1 }}</td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold {{ $isCurrentStudent ? 'bg-primary text-white' : 'bg-light text-secondary border' }}" style="width: 34px; height: 34px; font-size: 13px;">
+                                                                {{ mb_substr($classmate->full_name, 0, 1) }}
+                                                            </div>
+                                                            <div>
+                                                                <span class="fw-semibold text-dark student-name">{{ $classmate->full_name }}</span>
+                                                                @if($isCurrentStudent)
+                                                                    <span class="badge bg-primary text-white rounded-pill ms-1 px-2 py-0" style="font-size: 11px;">Ви</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="small text-muted">{{ $classmate->education_program ?? $classmate->specialty ?? '—' }}</span>
+                                                    </td>
+                                                    <td>
+                                                        @if($classmate->email)
+                                                            <a href="mailto:{{ $classmate->email }}" class="text-decoration-none small d-inline-flex align-items-center gap-1 text-primary">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                                                                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+                                                                </svg>
+                                                                {{ $classmate->email }}
+                                                            </a>
+                                                        @else
+                                                            <span class="text-muted small">—</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($classmate->subjects && $classmate->subjects->isNotEmpty())
+                                                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 small d-inline-flex align-items-center gap-1 shadow-sm"
+                                                                    type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target="#modal-classmate-subj-{{ $classmate->id }}"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="modal-classmate-subj-{{ $classmate->id }}"
+                                                                    title="Натисніть для перегляду обраних дисциплін">
+                                                                <span>📚 {{ $classmate->subjects->count() }} @if($classmate->subjects->count() == 1) предм. @else предм. @endif</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                                                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+                                                                </svg>
+                                                            </button>
+                                                        @else
+                                                            <span class="badge bg-light text-muted border px-2 py-1 rounded-pill small">Не обрано</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+
+                                                @if($classmate->subjects && $classmate->subjects->isNotEmpty())
+                                                    <tr id="modal-classmate-subj-{{ $classmate->id }}" class="collapse classmate-subjects-row bg-light">
+                                                        <td colspan="5" class="p-3">
+                                                            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                                                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                                                    <h6 class="fw-bold mb-0 text-dark small d-flex align-items-center gap-1">
+                                                                        <span>📚</span>
+                                                                        Обрані вибіркові дисципліни: <span class="text-primary">{{ $classmate->full_name }}</span>
+                                                                    </h6>
+                                                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1 small">
+                                                                        Всього: {{ $classmate->subjects->count() }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="d-flex flex-column gap-1">
+                                                                    @foreach($classmate->subjects as $subj)
+                                                                        <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light small">
+                                                                            <div class="d-flex align-items-center gap-2">
+                                                                                @if($subj->pivot->semester)
+                                                                                    <span class="badge bg-primary text-white rounded-pill px-2 py-0" style="font-size: 10px;">
+                                                                                        {{ $subj->pivot->semester }} сем.
+                                                                                    </span>
+                                                                                @endif
+                                                                                <span class="fw-semibold text-dark">{{ $subj->name }}</span>
+                                                                            </div>
+                                                                            @if($subj->chair || $subj->department)
+                                                                                <span class="text-muted" style="font-size: 11px;">{{ $subj->chair ?? $subj->department }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <p class="text-muted mb-0">Одногрупників не знайдено або група ще не призначена.</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="modal-footer border-0 bg-white p-3 d-flex justify-content-between">
+                            <a href="{{ route('platform.classmates') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                Відкрити на окремій сторінці ↗
+                            </a>
+                            <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Закрити</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function filterClassmates(query) {
+                    var term = query.toLowerCase().trim();
+                    var rows = document.querySelectorAll('#classmatesTable tbody tr.classmate-row');
+                    rows.forEach(function(row) {
+                        var name = row.querySelector('.student-name')?.textContent?.toLowerCase() || '';
+                        var nextRow = row.nextElementSibling;
+                        if (!term || name.includes(term)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                            if (nextRow && nextRow.classList.contains('classmate-subjects-row')) {
+                                nextRow.style.display = 'none';
+                                nextRow.classList.remove('show');
+                            }
+                        }
+                    });
+                }
+            </script>
+        @endif
     @endif
 </div>

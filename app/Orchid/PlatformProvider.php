@@ -36,6 +36,9 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             Menu::make('Вибіркові освітні компоненти університету')
                 ->route('platform.selsubjects'),
+            Menu::make('Одногрупники')
+                ->icon('bs.people')
+                ->route('platform.classmates'),
             Menu::make('Предмети')
                 ->permission('platform.systems.subjects')
                 ->route('platform.subjects'),

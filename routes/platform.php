@@ -12,6 +12,7 @@ use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\Selsubject\SelsubjectListScreen;
+use App\Orchid\Screens\Student\StudentClassmatesScreen;
 use App\Orchid\Screens\Student\StudentListScreen;
 use App\Orchid\Screens\Student\StudentsGroupScreen;
 use App\Orchid\Screens\Subject\SubjectListScreen;
@@ -83,6 +84,12 @@ Route::screen('students', StudentListScreen::class)
 
 Route::screen('students/groups/{group}', StudentsGroupScreen::class)
     ->name('platform.students.group');
+
+Route::screen('classmates', StudentClassmatesScreen::class)
+    ->name('platform.classmates')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push(__('Одногрупники'), route('platform.classmates')));
 
 Route::screen('groups', GroupListScreen::class)
     ->name('platform.groups');

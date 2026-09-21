@@ -67,13 +67,14 @@ class SecurityHardeningTest extends TestCase
         $studentA = User::factory()->create(['name' => 'Студент А', 'permissions' => ['platform.index' => true]]);
         $studentB = User::factory()->create(['name' => 'Студент Б', 'permissions' => ['platform.index' => true]]);
 
-        $group = Group::create(['name' => 'ІПЗ-21']);
+        $groupA = Group::create(['name' => 'ІПЗ-21']);
+        $groupB = Group::create(['name' => 'КН-21']);
         $specA = UserSpecialty::create([
             'user_id' => $studentA->id,
             'email' => $studentA->email,
             'card_id' => 'CARD-A',
             'full_name' => 'Студент А',
-            'group_id' => $group->id,
+            'group_id' => $groupA->id,
             'group_name' => 'ІПЗ-21',
             'specialty' => '121 ІПЗ',
         ]);
@@ -83,8 +84,8 @@ class SecurityHardeningTest extends TestCase
             'email' => $studentB->email,
             'card_id' => 'CARD-B',
             'full_name' => 'Студент Б',
-            'group_id' => $group->id,
-            'group_name' => 'ІПЗ-21',
+            'group_id' => $groupB->id,
+            'group_name' => 'КН-21',
             'specialty' => '122 Комп науки',
         ]);
 

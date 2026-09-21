@@ -148,6 +148,20 @@ class MainScreen extends Screen
             }
         }
 
+        $classmates = collect();
+        if ($studentSpecialty && ($studentSpecialty->group_id || $studentSpecialty->group_name)) {
+            $classmatesQuery = UserSpecialty::query();
+            if ($studentSpecialty->group_id) {
+                $classmatesQuery->where('group_id', $studentSpecialty->group_id);
+            } else {
+                $classmatesQuery->where('group_name', $studentSpecialty->group_name);
+            }
+            $classmates = $classmatesQuery
+                ->with(['subjects'])
+                ->orderBy('full_name')
+                ->get(['id', 'user_id', 'full_name', 'email', 'specialty', 'education_program', 'study_form', 'group_name']);
+        }
+
         $isStudent = !$isStaff || ($studentSpecialty !== null) || ($userSpecialties->isNotEmpty());
 
         return [
@@ -170,6 +184,7 @@ class MainScreen extends Screen
             'selectedSubjects' => $selectedSubjects,
             'maxSubjectsLimit' => $maxSubjectsLimit,
             'selectionProgressPercent' => $selectionProgressPercent,
+            'classmates' => $classmates,
         ];
     }
 
