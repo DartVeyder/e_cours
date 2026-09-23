@@ -50,7 +50,9 @@ class StudentListLayout extends Table
     {
         return [
             TD::make('id','№')
-                ->width('60px')
+                ->width('80px')
+                ->style('white-space: nowrap;')
+                ->sort()
                 ->align(TD::ALIGN_CENTER),
 
             TD::make('subjects_count','Кількість вибрано')

@@ -31,6 +31,7 @@ class UserSpecialty extends Model
     protected $casts = ['deleted_at' => 'datetime'];
 
     protected $allowedSorts = [
+        'id',
         'full_name',
         'degree',
         'department',
