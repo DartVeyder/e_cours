@@ -106,7 +106,10 @@ class StudentListScreen extends Screen
             Link::make('Google Sheet')
                 ->icon('bs.box-arrow-up-right')
                 ->target('_blank')
-                ->href(\App\Services\GoogleSheet\GoogleSheetService::getSheetUrl('students'))
+                ->href(\App\Services\GoogleSheet\GoogleSheetService::getSheetUrl('students')),
+            Link::make('Архів')
+                ->icon('bs.archive-fill')
+                ->route('platform.students.archived'),
         ];
     }
 
@@ -126,14 +129,21 @@ class StudentListScreen extends Screen
     public function importStudentsFromGoogleSheet()
     {
         $studentsSheet = new StudentsSheet();
+        $sheetRows = $studentsSheet->readAssoc();
 
-        foreach ($studentsSheet->readAssoc() as $row) {
+        // Збираємо всі card_id що є в Google Sheet (для подальшого порівняння)
+        $sheetCardIds = collect($sheetRows)
+            ->pluck('card_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $allowed = Schema::getColumnListing('user_specialties');
+
+        foreach ($sheetRows as $row) {
             if (empty($row['card_id'])) {
                 continue;
             }
-
-            // Отримуємо список колонок таблиці user_specialties
-            $allowed = Schema::getColumnListing('user_specialties');
 
             // Визначаємо degree_id, якщо в рядку є назва рівня освіти
             $row['degree_id'] = null;
@@ -156,7 +166,7 @@ class StudentListScreen extends Screen
                     ['name' => $groupName], // Унікальна назва групи
                     [
                         'department_id' => $row['department_id'] ?? null,
-                        'degree_id' => $row['degree_id'] ?? null, // 🔹 нове поле
+                        'degree_id' => $row['degree_id'] ?? null,
                     ]
                 );
                 $row['group_id'] = $group->id;
@@ -240,29 +250,55 @@ class StudentListScreen extends Screen
                 'card_creation_method' => $row['card_creation_method'] ?? null,
                 'dissertation_defense_renewal' => $row['dissertation_defense_renewal'] ?? null,
             ];
+
             if ($row['study_status'] == "Зараховано" || $row['study_status'] == "Змінено фінансування") {
                 if ($userSpecialty) {
-                    // Оновлюємо існуючий запис і відновлюємо, якщо був soft-deleted
                     $userSpecialty->update($data);
                     if ($userSpecialty->trashed()) {
                         $userSpecialty->restore();
                     }
                 } else {
-                    // Створюємо новий запис
                     UserSpecialty::create($data);
                 }
             } elseif ($row['study_status'] == "Відраховано") {
-                // Soft delete, якщо запис існує
-                if ($userSpecialty && !$userSpecialty->trashed()) {
-                    $userSpecialty->delete();
+                if ($userSpecialty) {
+                    // Оновлюємо дані (причина відрахування тощо) і архівуємо
+                    $userSpecialty->withoutEvents(function () use ($userSpecialty, $data) {
+                        $userSpecialty->fill($data)->saveQuietly();
+                    });
+                    if (!$userSpecialty->trashed()) {
+                        $userSpecialty->delete();
+                    }
+                } else {
+                    // Запис ще не існує — створюємо і одразу архівуємо
+                    $newRecord = UserSpecialty::create($data);
+                    $newRecord->delete();
                 }
             }
         }
 
-        Toast::success("Студентів імпортовано");
+        // Архівуємо студентів, яких більше немає в Google Sheet
+        // (рядку з таким card_id взагалі відсутній у таблиці)
+        $archived = UserSpecialty::whereNotNull('card_id')
+            ->whereNotIn('card_id', $sheetCardIds)
+            ->get();
+
+        $archivedCount = 0;
+        foreach ($archived as $missing) {
+            $missing->delete();
+            $archivedCount++;
+        }
+
+        $message = 'Студентів імпортовано';
+        if ($archivedCount > 0) {
+            $message .= ". Переміщено до архіву: {$archivedCount}";
+        }
+
+        Toast::success($message);
         activity()
             ->causedBy(Auth::user())
-            ->log("Імпорт студентів із Google Sheet завершено");
+            ->withProperties(['archived_count' => $archivedCount])
+            ->log("Імпорт студентів із Google Sheet завершено. Архівовано: {$archivedCount}");
     }
 
 

@@ -35,11 +35,23 @@ class PlatformProvider extends OrchidServiceProvider
     {
         return [
             Menu::make('Вибіркові освітні компоненти університету')
+                ->icon('bs.journal-bookmark-fill')
                 ->route('platform.selsubjects'),
             Menu::make('Одногрупники')
-                ->icon('bs.people')
-                ->route('platform.classmates'),
+                ->icon('bs.people-fill')
+                ->route('platform.classmates')
+                ->canSee(
+                    !auth()->user()?->hasAccess('platform.systems.roles') &&
+                    !auth()->user()?->hasAccess('platform.systems.users') &&
+                    !auth()->user()?->hasAccess('platform.systems.students') &&
+                    !auth()->user()?->hasAccess('platform.systems.subjects') &&
+                    !auth()->user()?->hasAccess('dekanat') &&
+                    !auth()->user()?->roles->contains('slug', 'administrator') &&
+                    !auth()->user()?->roles->contains('slug', 'admin') &&
+                    !auth()->user()?->roles->contains('slug', 'dekanat')
+                ),
             Menu::make('Предмети')
+                ->icon('bs.book-half')
                 ->permission('platform.systems.subjects')
                 ->route('platform.subjects'),
             Menu::make('Аналітика вибору')
@@ -47,43 +59,51 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.students')
                 ->route('platform.analytics'),
             Menu::make('Студенти')
+                ->icon('bs.mortarboard-fill')
                 ->permission('platform.systems.students')
                 ->route('platform.students'),
+            Menu::make('Архів студентів')
+                ->icon('bs.archive-fill')
+                ->permission('platform.systems.students')
+                ->route('platform.students.archived'),
             Menu::make('Групи')
+                ->icon('bs.diagram-3-fill')
                 ->permission('platform.systems.groups')
                 ->route('platform.groups'),
             Menu::make('Журнал подій')
+                ->icon('bs.clock-history')
                 ->permission('platform.systems.logs')
                 ->route('platform.activity.logs'),
             Menu::make('Логи')
+                ->icon('bs.terminal-fill')
                 ->permission('platform.systems.logs')
                 ->route('platform.logs'),
 
             Menu::make('Налаштування системи')
-                ->icon('bs.gear')
+                ->icon('bs.gear-fill')
                 ->permission('platform.systems.roles')
                 ->route('platform.settings'),
 
             Menu::make('Google Таблиці')
-                ->icon('bs.file-earmark-spreadsheet')
+                ->icon('bs.file-earmark-spreadsheet-fill')
                 ->permission('platform.systems.roles')
                 ->route('platform.settings.google-sheets'),
 
 
 
             Menu::make(__('Users'))
-                ->icon('bs.people')
+                ->icon('bs.person-fill-gear')
                 ->route('platform.systems.users')
                 ->permission('platform.systems.users')
                 ->title(__('Access Controls')),
 
             Menu::make(__('Roles'))
-                ->icon('bs.shield')
+                ->icon('bs.shield-fill-check')
                 ->route('platform.systems.roles')
                 ->permission('platform.systems.roles'),
 
             Menu::make('Чорний список IP')
-                ->icon('bs.shield-slash')
+                ->icon('bs.shield-fill-x')
                 ->permission('platform.systems.roles')
                 ->route('platform.systems.ip-blacklist')
                 ->divider(),

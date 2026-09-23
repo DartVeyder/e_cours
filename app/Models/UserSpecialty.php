@@ -57,6 +57,7 @@ class UserSpecialty extends Model
         'gender'               => Where::class,
         'study_form'           => Where::class,
         'group_name'           => Where::class,
+        'study_status'         => Where::class,
     ];
 
     public function getEntryYearAttribute(): ?string

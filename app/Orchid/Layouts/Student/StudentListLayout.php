@@ -156,6 +156,23 @@ class StudentListLayout extends Table
                 ->align(TD::ALIGN_CENTER)
                 ->style('white-space: nowrap;')
                 ->filter(TD::FILTER_SELECT, UserSpecialty::distinct()->pluck('gender', 'gender')),
+
+            TD::make('study_status', 'Статус навчання')
+                ->sort()
+                ->style('white-space: nowrap;')
+                ->filter(TD::FILTER_SELECT, UserSpecialty::distinct()->pluck('study_status', 'study_status'))
+                ->render(function ($student) {
+                    if (empty($student->study_status)) {
+                        return '<span class="text-muted">—</span>';
+                    }
+                    $color = match ($student->study_status) {
+                        'Зараховано'          => 'success',
+                        'Змінено фінансування' => 'info',
+                        'Відраховано'         => 'danger',
+                        default               => 'secondary',
+                    };
+                    return "<span class=\"badge bg-{$color} bg-opacity-75\">{$student->study_status}</span>";
+                }),
         ];
     }
 }

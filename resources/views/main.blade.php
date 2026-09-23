@@ -537,7 +537,7 @@
                                 <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-semibold">
                                     {{ $studentSpecialty->group_name ?? 'Без групи' }}
                                 </span>
-                                @if(!empty($studentSpecialty->group_name) || !empty($studentSpecialty->group_id))
+                                @if(!$isStaff && (!empty($studentSpecialty->group_name) || !empty($studentSpecialty->group_id)))
                                     <button type="button" 
                                             class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1 shadow-sm"
                                             data-bs-toggle="modal" 
